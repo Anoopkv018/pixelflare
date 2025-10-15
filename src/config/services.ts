@@ -1,3 +1,5 @@
+// src/config/services.ts
+
 export interface Service {
   id: string;
   category: string;
@@ -6,15 +8,17 @@ export interface Service {
   subhead: string;
   whoItsFor: string[];
   deliverables: string[];
-  process: {
-    step: string;
-    description: string;
-  }[];
-  faqs: {
-    question: string;
-    answer: string;
-  }[];
+  process: { step: string; description: string }[];
+  faqs: { question: string; answer: string }[];
   relatedServices: string[];
+
+  // ---- Optional extras used by ServiceDetail (all optional) ----
+  startingFrom?: string;                                // e.g. "₹25,000"
+  outcomes?: string[];                                  // measurable benefits
+  tools?: string[];                                     // tech/tools stack
+  useCases?: string[];                                  // popular scenarios
+  addons?: string[];                                    // optional add-ons
+  highlights?: { label: string; value: string }[];      // KPI badges
 }
 
 export const services: Service[] = [
@@ -24,6 +28,24 @@ export const services: Service[] = [
     title: "Website Designing",
     slug: "website-designing",
     subhead: "Beautiful, user-centric designs that turn visitors into customers",
+    startingFrom: "₹35,000",
+    highlights: [
+      { label: "Avg. conversion lift", value: "↑ 25–40%" },
+      { label: "Typical turnaround", value: "2–4 weeks" },
+      { label: "Client rating", value: "5.0★" }
+    ],
+    outcomes: [
+      "Clarity of information architecture and user flows",
+      "Higher engagement & conversion on key pages",
+      "Polished brand presence across devices"
+    ],
+    tools: ["Figma", "FigJam", "Illustrator", "Zeplin"],
+    useCases: [
+      "New brand/site launch",
+      "UX refresh of dated UI",
+      "Design system & component library"
+    ],
+    addons: ["Micro-copy & UX writing", "Illustrations/Icon set", "Design handoff support"],
     whoItsFor: [
       "Startups launching their first website",
       "Businesses looking to rebrand or modernize",
@@ -42,10 +64,10 @@ export const services: Service[] = [
       "2 rounds of revisions included"
     ],
     process: [
-      { step: "Discovery", description: "We analyze your brand, audience, and competitors to inform design strategy" },
+      { step: "Discovery",   description: "We analyze your brand, audience, and competitors to inform design strategy" },
       { step: "Wireframing", description: "Create layout structures focusing on user flow and conversion paths" },
       { step: "Visual Design", description: "Apply brand identity and create pixel-perfect, modern designs" },
-      { step: "Prototype", description: "Build interactive prototypes for testing and client approval" }
+      { step: "Prototype",   description: "Build interactive prototypes for testing and client approval" }
     ],
     faqs: [
       { question: "How long does website design take?", answer: "Typically 2-4 weeks depending on complexity and number of pages." },
@@ -57,12 +79,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["website-development", "wordpress-website", "logo-designing"]
   },
+
   {
     id: "website-development",
     category: "website",
     title: "Website Development",
     slug: "website-development",
     subhead: "Fast, secure, and scalable websites built with modern technology",
+    startingFrom: "₹60,000",
+    highlights: [
+      { label: "PageSpeed score", value: "90+ Core Web Vitals" },
+      { label: "Typical turnaround", value: "3–6 weeks" },
+      { label: "Uptime (with managed host)", value: "99.9%" }
+    ],
+    outcomes: [
+      "Production-ready, scalable codebase",
+      "Excellent Lighthouse/SEO scores",
+      "Easy publishing with CMS or headless"
+    ],
+    tools: ["Next.js", "React", "Node.js", "Tailwind", "Vercel"],
+    useCases: [
+      "Marketing site with CMS",
+      "High-performance landing pages",
+      "Headless WordPress/Shopify frontends"
+    ],
+    addons: ["Multi-language (i18n)", "Membership/Auth", "Animations/Motion"],
     whoItsFor: [
       "Businesses needing custom functionality",
       "Brands requiring high-performance sites",
@@ -97,12 +138,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["website-designing", "on-page-seo", "website-migration"]
   },
+
   {
     id: "website-migration",
     category: "website",
     title: "Website Migration",
     slug: "website-migration",
     subhead: "Seamless migration to modern platforms without losing traffic or data",
+    startingFrom: "₹55,000",
+    highlights: [
+      { label: "Traffic preserved", value: "~98% avg." },
+      { label: "Redirect accuracy", value: "100%" },
+      { label: "Typical timeline", value: "3–6 weeks" }
+    ],
+    outcomes: [
+      "Preserve SEO equity with correct redirects",
+      "Cleaner URL structure and information architecture",
+      "Better performance and reliability post-move"
+    ],
+    tools: ["Screaming Frog", "GA4", "Search Console", "Ahrefs"],
+    useCases: [
+      "CMS → WordPress/Headless",
+      "Subdomain consolidation",
+      "Replatforming to modern stack"
+    ],
+    addons: ["Design refresh during migration", "Content pruning & redirects", "Speed/SEO hardening"],
     whoItsFor: [
       "Businesses moving to a new CMS or platform",
       "Companies upgrading legacy systems",
@@ -137,12 +197,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["website-development", "on-page-seo", "wordpress-website"]
   },
+
   {
     id: "wordpress-website",
     category: "website",
     title: "WordPress Website",
     slug: "wordpress-website",
     subhead: "Custom WordPress sites that are easy to manage and built to perform",
+    startingFrom: "₹45,000",
+    highlights: [
+      { label: "Editing experience", value: "Non-technical friendly" },
+      { label: "Speed target", value: "90+ on mobile" },
+      { label: "Security hardening", value: "Included" }
+    ],
+    outcomes: [
+      "Easy content management with training",
+      "Solid Core Web Vitals & SEO setup",
+      "Scalable structure for future growth"
+    ],
+    tools: ["WordPress", "ACF", "Yoast/RankMath", "Cloudflare"],
+    useCases: [
+      "SMB marketing site",
+      "Blog/Resource hub",
+      "Lightweight ecommerce/catalog"
+    ],
+    addons: ["Custom blocks (Gutenberg)", "Advanced forms & workflows", "Multisite setup"],
     whoItsFor: [
       "Small businesses wanting easy content management",
       "Bloggers and content creators",
@@ -177,12 +256,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["website-designing", "website-development", "on-page-seo"]
   },
+
   {
     id: "on-page-seo",
     category: "marketing",
     title: "On-page SEO",
     slug: "on-page-seo",
     subhead: "Technical optimization that helps search engines understand and rank your content",
+    startingFrom: "₹25,000",
+    highlights: [
+      { label: "Technical issues fixed", value: "50–200+" },
+      { label: "Time to first impact", value: "4–8 weeks" },
+      { label: "Reporting", value: "Monthly" }
+    ],
+    outcomes: [
+      "Improved crawlability and indexation",
+      "Better rankings for core keywords",
+      "Faster pages and mobile usability"
+    ],
+    tools: ["Search Console", "GA4", "Screaming Frog", "Ahrefs/SEMrush"],
+    useCases: [
+      "New sites needing foundations",
+      "Sites with crawling/index issues",
+      "Performance & Core Web Vitals work"
+    ],
+    addons: ["Content briefs & mapping", "Schema expansion", "Internal link sculpting"],
     whoItsFor: [
       "New websites launching for the first time",
       "Businesses not ranking for target keywords",
@@ -218,12 +316,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["google-ads", "link-building", "website-development"]
   },
+
   {
     id: "google-ads",
     category: "marketing",
     title: "Google Ads",
     slug: "google-ads",
     subhead: "Data-driven Google Ads campaigns that deliver qualified leads and ROI",
+    startingFrom: "₹30,000 / month mgmt",
+    highlights: [
+      { label: "Typical ROAS after tuning", value: "3–5x" },
+      { label: "Optimization window", value: "2–4 weeks" },
+      { label: "Reporting", value: "Weekly + Monthly" }
+    ],
+    outcomes: [
+      "Immediate, targeted traffic",
+      "Clear conversion tracking & insights",
+      "Efficient budget usage via continual testing"
+    ],
+    tools: ["Google Ads", "GA4", "Looker Studio", "Tag Manager"],
+    useCases: [
+      "Lead gen with high intent",
+      "Time-sensitive promos",
+      "Entering new geographies"
+    ],
+    addons: ["Landing page CRO", "Call tracking", "CRM/Offline conversion import"],
     whoItsFor: [
       "Businesses needing immediate traffic and leads",
       "Companies with time-sensitive promotions",
@@ -259,12 +376,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["meta-ads", "on-page-seo", "website-designing"]
   },
+
   {
     id: "meta-ads",
     category: "marketing",
     title: "Meta Ads",
     slug: "meta-ads",
     subhead: "Engaging Facebook and Instagram ad campaigns that build brand awareness and drive conversions",
+    startingFrom: "₹25,000 / month mgmt",
+    highlights: [
+      { label: "Creative testing cadence", value: "Weekly" },
+      { label: "ROAS after scale (typ.)", value: "2–4x" },
+      { label: "Reporting", value: "Weekly + Monthly" }
+    ],
+    outcomes: [
+      "Reach & awareness in target personas",
+      "Efficient retargeting funnels",
+      "Creative learnings to inform brand"
+    ],
+    tools: ["Meta Ads", "Meta Pixel/Conversions API", "GA4"],
+    useCases: [
+      "E-commerce sales",
+      "Lead gen for B2C",
+      "Warm retargeting with UGC"
+    ],
+    addons: ["Creative production packs", "Catalog/Shop setup", "UGC creator sourcing"],
     whoItsFor: [
       "Brands targeting specific demographics",
       "E-commerce businesses driving sales",
@@ -300,12 +436,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["google-ads", "video-editing", "business-brochures"]
   },
+
   {
     id: "link-building",
     category: "marketing",
     title: "Link Building",
     slug: "link-building",
     subhead: "White-hat backlink strategies that improve domain authority and search rankings",
+    startingFrom: "₹35,000 / month",
+    highlights: [
+      { label: "Links/month (quality)", value: "5–15" },
+      { label: "Toxic link handling", value: "Disavow included" },
+      { label: "Reporting", value: "Monthly" }
+    ],
+    outcomes: [
+      "Higher topical authority & rankings",
+      "Safer, white-hat link profile",
+      "Compounding organic growth"
+    ],
+    tools: ["Ahrefs", "SEMrush", "BuzzStream", "Search Console"],
+    useCases: [
+      "Competitive keyword battles",
+      "New domains building authority",
+      "Recovering from weak link profile"
+    ],
+    addons: ["Digital PR campaigns", "Asset design for outreach", "Skyscraper content briefs"],
     whoItsFor: [
       "Sites struggling to rank competitively",
       "New domains needing authority",
@@ -341,12 +496,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["on-page-seo", "google-ads", "business-profile"]
   },
+
   {
     id: "video-editing",
     category: "videos",
     title: "Video Editing",
     slug: "video-editing",
     subhead: "Professional video editing that transforms raw footage into engaging content",
+    startingFrom: "₹12,000 / video",
+    highlights: [
+      { label: "Turnaround", value: "5–10 biz days" },
+      { label: "Deliverables", value: "Social + web formats" },
+      { label: "Revisions", value: "2 rounds" }
+    ],
+    outcomes: [
+      "Crisp pacing and storytelling",
+      "On-brand graphics & subtitles",
+      "Platform-ready exports"
+    ],
+    tools: ["Premiere Pro", "After Effects", "DaVinci Resolve"],
+    useCases: [
+      "YouTube/social content",
+      "Product promos",
+      "Customer stories & reels"
+    ],
+    addons: ["Custom motion graphics", "Stock assets licensing", "Multi-language captions"],
     whoItsFor: [
       "Content creators needing professional polish",
       "Businesses with marketing video footage",
@@ -381,12 +555,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["explainer-video", "testimonial-video", "meta-ads"]
   },
+
   {
     id: "explainer-video",
     category: "videos",
     title: "Explainer Video",
     slug: "explainer-video",
     subhead: "Animated or live-action videos that clearly communicate your product or service",
+    startingFrom: "₹65,000",
+    highlights: [
+      { label: "Ideal length", value: "60–90 sec" },
+      { label: "Script + VO", value: "Included" },
+      { label: "Turnaround", value: "3–4 weeks" }
+    ],
+    outcomes: [
+      "Simplify complex ideas",
+      "Increase landing page conversion",
+      "Sales & onboarding enablement"
+    ],
+    tools: ["After Effects", "Premiere Pro", "Illustrator"],
+    useCases: [
+      "SaaS product explainer",
+      "Feature launch",
+      "Investor/partner pitches"
+    ],
+    addons: ["Custom illustration pack", "Multiple aspect ratios", "Additional language VO"],
     whoItsFor: [
       "SaaS companies explaining complex products",
       "Startups introducing new concepts",
@@ -421,12 +614,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["product-explainer-video", "video-editing", "website-designing"]
   },
+
   {
     id: "testimonial-video",
     category: "videos",
     title: "Testimonial Video",
     slug: "testimonial-video",
     subhead: "Authentic customer stories that build trust and credibility",
+    startingFrom: "₹40,000",
+    highlights: [
+      { label: "Deliverables", value: "Full + 30/60s cuts" },
+      { label: "Recording", value: "On-site or remote" },
+      { label: "Turnaround", value: "2–3 weeks" }
+    ],
+    outcomes: [
+      "Stronger social proof for sales",
+      "Human-centered proof of value",
+      "Multi-channel content pieces"
+    ],
+    tools: ["Premiere Pro", "DaVinci Resolve", "Riverside/Zencastr"],
+    useCases: [
+      "B2B case studies",
+      "Service proof for D2C",
+      "Recruiting & employer brand"
+    ],
+    addons: ["Teleprompter & coaching", "B-roll capture", "Multi-language captions"],
     whoItsFor: [
       "B2B companies building trust",
       "Service businesses showcasing results",
@@ -461,12 +673,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["explainer-video", "video-editing", "business-profile"]
   },
+
   {
     id: "product-explainer-video",
     category: "videos",
     title: "Product Explainer Video",
     slug: "product-explainer-video",
     subhead: "Show how your product works and why customers need it",
+    startingFrom: "₹55,000",
+    highlights: [
+      { label: "Best for", value: "SaaS & e-com" },
+      { label: "Length options", value: "30/60/90s" },
+      { label: "Script + VO", value: "Included" }
+    ],
+    outcomes: [
+      "Clear understanding of features",
+      "Reduced sales/demo friction",
+      "Higher add-to-cart or trial starts"
+    ],
+    tools: ["After Effects", "Premiere Pro", "ScreenFlow"],
+    useCases: [
+      "Feature walkthroughs",
+      "App store & website demos",
+      "Retail product showcases"
+    ],
+    addons: ["Thumbnail pack", "Multiple languages", "CTA variants"],
     whoItsFor: [
       "E-commerce brands showcasing products",
       "SaaS companies demoing features",
@@ -501,12 +732,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["explainer-video", "video-editing", "google-ads"]
   },
+
   {
     id: "logo-designing",
     category: "branding",
     title: "Logo Designing",
     slug: "logo-designing",
     subhead: "Memorable logo design that captures your brand identity",
+    startingFrom: "₹18,000",
+    highlights: [
+      { label: "Concepts", value: "3 initial" },
+      { label: "Revisions", value: "2 rounds" },
+      { label: "Delivery", value: "All formats" }
+    ],
+    outcomes: [
+      "Distinctive, ownable mark",
+      "Flexible usage across mediums",
+      "A clear foundation for brand system"
+    ],
+    tools: ["Illustrator", "Figma"],
+    useCases: [
+      "New brand identity",
+      "Rebranding refresh",
+      "Sub-brand/ product line logos"
+    ],
+    addons: ["Brand style guide", "Business card kit", "Social avatar kit"],
     whoItsFor: [
       "Startups creating brand identity",
       "Businesses rebranding",
@@ -541,12 +791,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["business-brochures", "business-profile", "website-designing"]
   },
+
   {
     id: "business-brochures",
     category: "branding",
     title: "Business Brochures",
     slug: "business-brochures",
     subhead: "Professional brochures that inform, engage, and convert prospects",
+    startingFrom: "₹22,000",
+    highlights: [
+      { label: "Formats", value: "Bi/Tri-fold & booklet" },
+      { label: "Copy support", value: "Included" },
+      { label: "Delivery", value: "Print + Digital" }
+    ],
+    outcomes: [
+      "Clear, persuasive sales collateral",
+      "Brand-consistent visuals",
+      "Printer-ready files without hassle"
+    ],
+    tools: ["InDesign", "Illustrator", "Figma"],
+    useCases: [
+      "Sales leave-behinds",
+      "Trade-show collateral",
+      "Service/offer explainers"
+    ],
+    addons: ["Print vendor coordination", "Illustration pack", "QR tracked versions"],
     whoItsFor: [
       "B2B companies needing sales collateral",
       "Service businesses explaining offerings",
@@ -581,12 +850,31 @@ export const services: Service[] = [
     ],
     relatedServices: ["business-profile", "logo-designing", "product-label"]
   },
+
   {
     id: "product-label",
     category: "branding",
     title: "Product Label",
     slug: "product-label",
     subhead: "Eye-catching product labels that stand out on shelves and online",
+    startingFrom: "₹20,000",
+    highlights: [
+      { label: "Variants support", value: "Multi-SKU ready" },
+      { label: "Print-ready", value: "Yes" },
+      { label: "Special finishes", value: "Foil/UV/Emboss" }
+    ],
+    outcomes: [
+      "Shelf-impact and legibility",
+      "Compliance-ready information layout",
+      "Easy rollout across SKUs"
+    ],
+    tools: ["Illustrator", "Photoshop", "InDesign"],
+    useCases: [
+      "Food & beverages",
+      "Cosmetics/health",
+      "D2C ecommerce packaging"
+    ],
+    addons: ["Mockups for marketing", "Printer coordination", "3D packshots"],
     whoItsFor: [
       "Consumer product brands",
       "Food and beverage companies",
@@ -616,17 +904,35 @@ export const services: Service[] = [
       { question: "What label sizes and shapes can you design?", answer: "Any size or shape. We create custom die-lines or work with standard sizes." },
       { question: "Can you create multiple SKU variations?", answer: "Yes, we create template systems for easy variation across product lines." },
       { question: "What about special finishes?", answer: "We design for foil stamping, embossing, spot UV, and other premium finishes." },
-      { question: "Do you work with label printers?", answer: "Yes, we can coordinate with your printer or recommend trusted partners." },
-      { question: "Can you design for different materials?", answer: "Yes, we consider material (paper, plastic, film) in design approach." }
+      { question: "Do you work with label printers?", answer: "Yes, we can coordinate with your printer or recommend trusted partners." }
     ],
     relatedServices: ["logo-designing", "business-brochures", "product-explainer-video"]
   },
+
   {
     id: "business-profile",
     category: "branding",
     title: "Business Profile",
     slug: "business-profile",
     subhead: "Comprehensive business profiles that showcase your company professionally",
+    startingFrom: "₹28,000",
+    highlights: [
+      { label: "Length", value: "8–16 pages" },
+      { label: "Copywriting", value: "Included" },
+      { label: "Formats", value: "Print + Digital + Editable" }
+    ],
+    outcomes: [
+      "Credibility & trust for B2B",
+      "Consistent, updatable company story",
+      "Assets for pitches, RFPs & sales"
+    ],
+    tools: ["InDesign", "PowerPoint/Keynote", "Figma"],
+    useCases: [
+      "Partner/RFP submissions",
+      "Sales & investor decks",
+      "Corporate credentials"
+    ],
+    addons: ["Case study templates", "Data-viz charts", "Print coordination"],
     whoItsFor: [
       "B2B companies pitching to clients",
       "Organizations applying for partnerships",
@@ -674,6 +980,5 @@ export function getServicesByCategory(category: string): Service[] {
 export function getRelatedServices(serviceId: string): Service[] {
   const service = services.find(s => s.id === serviceId);
   if (!service) return [];
-
   return services.filter(s => service.relatedServices.includes(s.id));
 }

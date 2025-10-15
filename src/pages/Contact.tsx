@@ -1,6 +1,7 @@
-import { useState, FormEvent } from 'react';
+import { useState, useRef, FormEvent } from 'react';
 import { MapPin, Phone, Mail, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Textarea } from '../components/ui/Textarea';
@@ -13,13 +14,10 @@ export function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [honeypot, setHoneypot] = useState('');
   const [status, setStatus] = useState<Status>({ type: 'idle' });
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [recaptchaToken, setRecaptchaToken] = useState('');
+  const recaptchaRef = useRef<ReCAPTCHA | null>(null);
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -38,58 +36,55 @@ export function Contact() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (honeypot) return; // spam bot
+    if (honeypot) return;
     if (!validate()) return;
+
+    if (!recaptchaToken) {
+      setStatus({ type: 'error', message: 'Please confirm you’re not a robot.' });
+      return;
+    }
 
     setIsSubmitting(true);
     setStatus({ type: 'idle' });
 
     try {
-      // 1) Save to DB
+      // Save + email (api.ts now forwards token to /api/notify)
       const { submitContact } = await import('../lib/api');
-      const dbPromise = submitContact({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        message: formData.message,
-        submittedAt: new Date().toISOString()
-      });
+      const result = await submitContact(
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+          submittedAt: new Date().toISOString(),
+        },
+        recaptchaToken // <-- v2 token
+      );
 
-      // 2) Send email (via /api/notify which uses Nodemailer + your .env)
-      const mailPromise = fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      const [dbRes, mailRes] = await Promise.allSettled([dbPromise, mailPromise]);
-
-      const dbOK = dbRes.status === 'fulfilled' && dbRes.value?.success;
-      const mailOK =
-        mailRes.status === 'fulfilled' && (mailRes.value as Response).ok;
-
-      if (dbOK && mailOK) {
+      if (result.success) {
         setStatus({
           type: 'success',
-          message: 'Thanks! Your message has been sent. We’ll get back to you soon.'
+          message: 'Thanks! Your message has been sent. We’ll get back to you soon.',
         });
         setFormData({ name: '', email: '', phone: '', message: '' });
+        // reset captcha
+        recaptchaRef.current?.reset();
+        setRecaptchaToken('');
       } else {
         setStatus({
           type: 'error',
-          message:
-            'We saved your message, but email notification failed. We’ll still reach out soon.'
+          message: result.error || 'Something went wrong. Please try again in a moment.',
         });
+        recaptchaRef.current?.reset();
+        setRecaptchaToken('');
       }
     } catch (err) {
       console.error('Contact submit error:', err);
-      setStatus({
-        type: 'error',
-        message: 'Something went wrong. Please try again in a moment.'
-      });
+      setStatus({ type: 'error', message: 'Something went wrong. Please try again in a moment.' });
+      recaptchaRef.current?.reset();
+      setRecaptchaToken('');
     } finally {
       setIsSubmitting(false);
-      // Auto-hide status after a bit
       setTimeout(() => setStatus({ type: 'idle' }), 6000);
     }
   };
@@ -124,7 +119,7 @@ export function Contact() {
           {[
             { icon: MapPin, label: 'Location', text: siteConfig.address },
             { icon: Phone, label: 'Phone', text: siteConfig.phone },
-            { icon: Mail, label: 'Email', text: siteConfig.email }
+            { icon: Mail, label: 'Email', text: siteConfig.email },
           ].map((info, idx) => (
             <motion.div
               key={idx}
@@ -209,6 +204,15 @@ export function Contact() {
                 required
                 error={errors.message}
               />
+
+              {/* reCAPTCHA v2 checkbox */}
+              <div className="pt-2">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY as string}
+                  onChange={(token) => setRecaptchaToken(token || '')}
+                />
+              </div>
 
               <Button
                 type="submit"

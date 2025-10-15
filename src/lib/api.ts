@@ -1,6 +1,8 @@
 // src/lib/api.ts
 import { supabase } from './supabase';
 
+/* ---------- Types ---------- */
+
 export interface QuoteSubmission {
   fullName: string;
   email: string;
@@ -24,23 +26,35 @@ export interface ContactSubmission {
   submittedAt: string;
 }
 
-// Point to the Vercel function correctly in dev/prod
-const API_BASE = import.meta.env.DEV ? 'http://localhost:3000' : '';
 
-async function notify(payload: unknown) {
-  const res = await fetch(`${API_BASE}/api/notify`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const txt = await res.text().catch(() => '');
-    console.error('notify failed', res.status, txt);
-    throw new Error(txt || `notify failed with ${res.status}`);
+/* ---------- Helpers ---------- */
+
+/**
+ * POST JSON to our serverless function and return whether it succeeded.
+ * Never throws — returns false on any failure.
+ */
+async function postNotify(payload: unknown): Promise<boolean> {
+  try {
+    const res = await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      console.error('notify failed', res.status, body);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('notify error', err);
+    return false;
   }
 }
 
-export async function submitQuote(data: QuoteSubmission): Promise<{ success: boolean; error?: string }> {
+/* ---------- Public API ---------- */
+
+export async function submitQuote(data: QuoteSubmission): Promise<ApiResult> {
   try {
     const { error } = await supabase.from('quote_submissions').insert({
       full_name: data.fullName,
@@ -56,25 +70,27 @@ export async function submitQuote(data: QuoteSubmission): Promise<{ success: boo
       reference_links: data.references || '',
       submitted_at: data.submittedAt,
     });
+
     if (error) {
       console.error('Error submitting quote:', error);
       return { success: false, error: error.message };
     }
 
-    // 🔔 Send the email
-    await notify({
-      kind: 'quote',
-      ...data,
-    });
+    // Send notification email (non-blocking for UX, but we still await to know result)
+    const emailSent = await postNotify({ kind: 'quote', ...data });
 
-    return { success: true };
-  } catch (err: any) {
+    return { success: true, emailSent };
+  } catch (err) {
     console.error('Error submitting quote:', err);
-    return { success: false, error: err?.message || 'Failed to submit quote' };
+    return { success: false, error: 'Failed to submit quote' };
   }
 }
+type ApiResult = { success: boolean; emailSent?: boolean; error?: string };
 
-export async function submitContact(data: ContactSubmission): Promise<{ success: boolean; error?: string }> {
+export async function submitContact(
+  data: ContactSubmission,
+  recaptchaToken?: string
+): Promise<ApiResult> {
   try {
     const { error } = await supabase.from('contact_submissions').insert({
       name: data.name,
@@ -83,24 +99,30 @@ export async function submitContact(data: ContactSubmission): Promise<{ success:
       message: data.message,
       submitted_at: data.submittedAt,
     });
-    if (error) {
-      console.error('Error submitting contact:', error);
-      return { success: false, error: error.message };
+    if (error) return { success: false, error: error.message };
+
+    // Try to send the email and report whether it worked
+    let emailSent = false;
+    try {
+      const res = await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'contact', ...data, recaptchaToken }),
+      });
+
+      if (res.ok) {
+        // Our /api/notify returns { success: true, messageId: ... }
+        const json = await res.json().catch(() => null);
+        emailSent = !!json?.success;
+      }
+    } catch (e) {
+      // swallow; we still saved to DB
+      emailSent = false;
     }
 
-    // 🔔 Send the email
-    await notify({
-      kind: 'contact',
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      message: data.message,
-      submittedAt: data.submittedAt,
-    });
-
-    return { success: true };
-  } catch (err: any) {
+    return { success: true, emailSent };
+  } catch (err) {
     console.error('Error submitting contact:', err);
-    return { success: false, error: err?.message || 'Failed to submit contact form' };
+    return { success: false, error: 'Failed to submit contact form' };
   }
 }

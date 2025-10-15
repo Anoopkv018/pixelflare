@@ -1,4 +1,3 @@
-// /api/notify.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
 
@@ -9,6 +8,7 @@ type ContactBody = {
   phone?: string;
   message: string;
   submittedAt?: string;
+  recaptchaToken?: string; // <-- v2 token
 };
 
 type QuoteBody = {
@@ -25,6 +25,7 @@ type QuoteBody = {
   goals?: string[];
   references?: string;
   submittedAt?: string;
+  recaptchaToken?: string; // optional if you add v2 there too
 };
 
 type Body = ContactBody | QuoteBody;
@@ -39,21 +40,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const body = req.body as Body | undefined;
   if (!body || !('kind' in body)) return res.status(400).json({ error: 'Invalid payload' });
 
-  // Transporter
+  // ===== reCAPTCHA v2 verification =====
+  try {
+    const token = (body as any).recaptchaToken as string | undefined;
+    const secret = process.env.RECAPTCHA_SECRET;
+
+    // Enforce verification in production only (keeps local dev easy)
+    if (process.env.NODE_ENV === 'production') {
+      if (!secret) return res.status(500).json({ error: 'Missing RECAPTCHA_SECRET' });
+      if (!token) return res.status(400).json({ error: 'Missing reCAPTCHA token' });
+
+      const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          secret,
+          response: token,
+          remoteip: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || '',
+        }),
+      });
+      const verify = await verifyRes.json();
+
+      if (!verify.success) {
+        console.warn('reCAPTCHA failed', verify?.['error-codes']);
+        return res.status(403).json({ error: 'reCAPTCHA failed' });
+      }
+    }
+  } catch (e) {
+    console.error('reCAPTCHA verify error', e);
+    return res.status(500).json({ error: 'reCAPTCHA verification error' });
+  }
+
+  // ===== Mail transport =====
   const port = Number(process.env.SMTP_PORT || 465);
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port,
-    secure: port === 465, // true for 465, false for 587
+    secure: port === 465,
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
   });
 
-  // recipients (defaults)
   const to = process.env.MAIL_TO || 'reachpixelflare@gmail.com';
-  // Accept comma-separated MAIL_CC, but also ensure your three defaults if none provided
   const cc =
     process.env.MAIL_CC?.split(',').map(s => s.trim()).filter(Boolean) ||
     ['info@pixelflare.in', 'services@pixelflare.in'];
+  const fromAddress = process.env.MAIL_FROM || process.env.SMTP_USER || 'no-reply@localhost';
 
   try {
     let subject = 'New submission';
@@ -73,9 +104,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ${submittedAt ? `<p style="color:#666"><small>Submitted: ${esc(submittedAt)}</small></p>` : ''}
       `;
     } else {
-      const {
-        fullName, email, phone, company, category, service, budget, timeline, brief, goals, references, submittedAt
-      } = body;
+      const { fullName, email, phone, company, category, service, budget, timeline, brief, goals, references, submittedAt } = body;
 
       subject = `🧾 New Quote — ${category} / ${service} — ${fullName}`;
       html = `
@@ -93,8 +122,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ${submittedAt ? `<p style="color:#666"><small>Submitted: ${esc(submittedAt)}</small></p>` : ''}
       `;
     }
-
-    const fromAddress = process.env.MAIL_FROM || process.env.SMTP_USER || 'no-reply@localhost';
 
     const info = await transporter.sendMail({
       from: `"PixelFlare" <${fromAddress}>`,

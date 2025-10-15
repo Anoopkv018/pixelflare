@@ -1,16 +1,96 @@
-import { FormEvent } from 'react';
-import { Twitter, Linkedin, Instagram, Facebook, Phone, AtSign, Mail } from 'lucide-react';
+// src/components/layout/Footer.tsx
+import { useState, FormEvent } from 'react';
+import {
+  Linkedin, Instagram, Facebook,
+  Phone, AtSign, Mail,
+  Loader2, CheckCircle2, AlertTriangle
+} from 'lucide-react';
 import { megaMenuColumns, siteConfig } from '../../config/site';
+import { submitContact } from '../../lib/api';
+
+type Status = { type: 'idle' | 'success' | 'soft-error' | 'error'; message?: string };
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [honeypot, setHoneypot] = useState('');
+  const [status, setStatus] = useState<Status>({ type: 'idle' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    brief: '',
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const setField = (k: keyof typeof form, v: string) => {
+    setForm(prev => ({ ...prev, [k]: v }));
+    if (errors[k]) setErrors(prev => ({ ...prev, [k]: '' }));
+  };
+
+  const validate = () => {
+    const next: Record<string, string> = {};
+    if (!form.name.trim()) next.name = 'Name is required';
+    if (!form.email.trim()) next.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(form.email)) next.email = 'Invalid email';
+    if (!form.phone.trim()) next.phone = 'Phone is required';
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: wire this to your submitQuote() or an API endpoint.
-    // Example: on successful submit, you can navigate to /thank-you
-    // or trigger your existing quote modal flow.
-    alert('Thanks! We’ll get back to you shortly.');
+    if (honeypot) return;
+
+    if (!validate()) return;
+
+    setIsSubmitting(true);
+    setStatus({ type: 'idle' });
+
+    // Combine Address + Brief into one message for the Contact table/email
+    const message =
+      `Address:\n${form.address || '-'}\n\n` +
+      `Project Brief:\n${form.brief || '-'}`;
+
+    try {
+      const res = await submitContact({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        message,
+        submittedAt: new Date().toISOString(),
+      });
+
+      if (res.success) {
+        if (res.emailSent) {
+          setStatus({
+            type: 'success',
+            message: 'Thanks! Your message has been sent. We’ll get back to you soon.',
+          });
+        } else {
+          setStatus({
+            type: 'soft-error',
+            message:
+              'We saved your message, but email notification failed. We’ll still reach out soon.',
+          });
+        }
+        setForm({ name: '', email: '', phone: '', address: '', brief: '' });
+      } else {
+        setStatus({
+          type: 'error',
+          message: res.error || 'Failed to submit. Please try again.',
+        });
+      }
+    } catch (err) {
+      console.error('Footer contact submit error:', err);
+      setStatus({ type: 'error', message: 'Failed to submit. Please try again.' });
+    } finally {
+      setIsSubmitting(false);
+      // Auto-hide soft banners
+      setTimeout(() => setStatus({ type: 'idle' }), 6000);
+    }
   };
 
   return (
@@ -31,8 +111,7 @@ export function Footer() {
               </h2>
               <p className="mt-4 text-white/90 text-base md:text-lg max-w-xl">
                 We’re here to help you grow smarter and faster. Share a few details and we’ll get back
-                to you with ideas, solutions, and a plan to bring your vision to life. Whether you need
-                web design, branding, or digital marketing, our team is ready to support you every step.
+                to you with ideas, solutions, and a plan to bring your vision to life.
               </p>
 
               <div className="mt-8 space-y-4 text-white/95">
@@ -65,7 +144,39 @@ export function Footer() {
 
             {/* Right: form */}
             <form onSubmit={handleSubmit} className="w-full space-y-3 sm:space-y-4">
-              {/* use sr-only labels for accessibility while keeping placeholders visible */}
+              {/* status */}
+              <div aria-live="polite">
+                {status.type === 'success' && (
+                  <div className="flex items-center gap-2 text-green-600 bg-green-50/90 border border-green-200 rounded-xl px-3 py-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span className="text-sm">{status.message}</span>
+                  </div>
+                )}
+                {status.type === 'soft-error' && (
+                  <div className="flex items-center gap-2 text-orange-600 bg-orange-50/90 border border-orange-200 rounded-xl px-3 py-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span className="text-sm">{status.message}</span>
+                  </div>
+                )}
+                {status.type === 'error' && (
+                  <div className="flex items-center gap-2 text-red-600 bg-red-50/90 border border-red-200 rounded-xl px-3 py-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span className="text-sm">{status.message}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* honeypot */}
+              <input
+                type="text"
+                name="website"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                style={{ position: 'absolute', left: '-9999px' }}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+
               <label htmlFor="f_name" className="sr-only">Name</label>
               <input
                 id="f_name"
@@ -73,8 +184,11 @@ export function Footer() {
                 type="text"
                 placeholder="Name"
                 required
+                value={form.name}
+                onChange={(e) => setField('name', e.target.value)}
                 className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/30 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-white/30 focus:border-white"
               />
+              {errors.name && <p className="text-sm text-red-200">{errors.name}</p>}
 
               <label htmlFor="f_email" className="sr-only">Email</label>
               <input
@@ -83,8 +197,11 @@ export function Footer() {
                 type="email"
                 placeholder="Email"
                 required
+                value={form.email}
+                onChange={(e) => setField('email', e.target.value)}
                 className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/30 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-white/30 focus:border-white"
               />
+              {errors.email && <p className="text-sm text-red-200">{errors.email}</p>}
 
               <label htmlFor="f_phone" className="sr-only">Phone</label>
               <input
@@ -93,8 +210,11 @@ export function Footer() {
                 type="tel"
                 placeholder="Phone"
                 required
+                value={form.phone}
+                onChange={(e) => setField('phone', e.target.value)}
                 className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/30 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-white/30 focus:border-white"
               />
+              {errors.phone && <p className="text-sm text-red-200">{errors.phone}</p>}
 
               <label htmlFor="f_address" className="sr-only">Address</label>
               <textarea
@@ -102,6 +222,8 @@ export function Footer() {
                 name="address"
                 placeholder="Address"
                 rows={4}
+                value={form.address}
+                onChange={(e) => setField('address', e.target.value)}
                 className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/30 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-white/30 focus:border-white"
               />
 
@@ -111,14 +233,24 @@ export function Footer() {
                 name="brief"
                 placeholder="Brief about the project"
                 rows={4}
+                value={form.brief}
+                onChange={(e) => setField('brief', e.target.value)}
                 className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/30 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-white/30 focus:border-white"
               />
 
               <button
                 type="submit"
-                className="inline-flex items-center justify-center rounded-2xl bg-white/15 px-6 py-3 font-semibold text-white transition-all hover:bg-white/25"
+                disabled={isSubmitting}
+                className="inline-flex items-center justify-center rounded-2xl bg-white/15 px-6 py-3 font-semibold text-white transition-all hover:bg-white/25 disabled:opacity-60"
               >
-                Submit
+                {isSubmitting ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending…
+                  </span>
+                ) : (
+                  'Submit'
+                )}
               </button>
             </form>
           </div>
@@ -189,3 +321,5 @@ export function Footer() {
     </footer>
   );
 }
+
+export default Footer;
