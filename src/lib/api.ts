@@ -24,9 +24,23 @@ export interface ContactSubmission {
   submittedAt: string;
 }
 
-export async function submitQuote(
-  data: QuoteSubmission
-): Promise<{ success: boolean; error?: string }> {
+// Point to the Vercel function correctly in dev/prod
+const API_BASE = import.meta.env.DEV ? 'http://localhost:3000' : '';
+
+async function notify(payload: unknown) {
+  const res = await fetch(`${API_BASE}/api/notify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    console.error('notify failed', res.status, txt);
+    throw new Error(txt || `notify failed with ${res.status}`);
+  }
+}
+
+export async function submitQuote(data: QuoteSubmission): Promise<{ success: boolean; error?: string }> {
   try {
     const { error } = await supabase.from('quote_submissions').insert({
       full_name: data.fullName,
@@ -40,81 +54,53 @@ export async function submitQuote(
       brief: data.brief,
       goals: data.goals || [],
       reference_links: data.references || '',
-      submitted_at: data.submittedAt
+      submitted_at: data.submittedAt,
     });
-
     if (error) {
       console.error('Error submitting quote:', error);
       return { success: false, error: error.message };
     }
 
-    // 🔔 Fire the email notification (server: /api/notify)
-    // Keep it non-blocking but await so we can surface errors if needed.
-    const notify = await fetch('/api/notify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'quote',
-        to: 'reachpixelflare@gmail.com',
-        cc: ['info@pixelflare.in', 'services@pixelflare.in'],
-        subject: `New Quote Request — ${data.category} / ${data.service}`,
-        payload: data
-      })
+    // 🔔 Send the email
+    await notify({
+      kind: 'quote',
+      ...data,
     });
 
-    if (!notify.ok) {
-      const body = await notify.json().catch(() => ({}));
-      console.error('notify failed', notify.status, body);
-      // We still consider the submission saved; but return error if you want:
-      // return { success: false, error: 'Saved but email failed' };
-    }
-
     return { success: true };
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error submitting quote:', err);
-    return { success: false, error: 'Failed to submit quote' };
+    return { success: false, error: err?.message || 'Failed to submit quote' };
   }
 }
 
-export async function submitContact(
-  data: ContactSubmission
-): Promise<{ success: boolean; error?: string }> {
+export async function submitContact(data: ContactSubmission): Promise<{ success: boolean; error?: string }> {
   try {
     const { error } = await supabase.from('contact_submissions').insert({
       name: data.name,
       email: data.email,
       phone: data.phone || '',
       message: data.message,
-      submitted_at: data.submittedAt
+      submitted_at: data.submittedAt,
     });
-
     if (error) {
       console.error('Error submitting contact:', error);
       return { success: false, error: error.message };
     }
 
-    // 🔔 Email for contact as well
-    const notify = await fetch('/api/notify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'contact',
-        to: 'reachpixelflare@gmail.com',
-        cc: ['info@pixelflare.in', 'services@pixelflare.in'],
-        subject: `New Contact Message — ${data.name}`,
-        payload: data
-      })
+    // 🔔 Send the email
+    await notify({
+      kind: 'contact',
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      message: data.message,
+      submittedAt: data.submittedAt,
     });
 
-    if (!notify.ok) {
-      const body = await notify.json().catch(() => ({}));
-      console.error('notify failed', notify.status, body);
-      // return { success: false, error: 'Saved but email failed' };
-    }
-
     return { success: true };
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error submitting contact:', err);
-    return { success: false, error: 'Failed to submit contact form' };
+    return { success: false, error: err?.message || 'Failed to submit contact form' };
   }
 }

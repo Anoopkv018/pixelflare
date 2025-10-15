@@ -56,11 +56,11 @@ const servicesByCategory: Record<string, { value: string; label: string }[]> = {
 
 const budgetOptions = [
   { value: '', label: 'Select your budget' },
-  { value: 'under-2k', label: 'Under $2,000' },
-  { value: '2k-5k', label: '$2,000 - $5,000' },
-  { value: '5k-10k', label: '$5,000 - $10,000' },
-  { value: '10k-25k', label: '$10,000 - $25,000' },
-  { value: '25k-plus', label: '$25,000+' }
+  { value: 'under-10k', label: 'Under ₹10,000' },
+  { value: '10k-15k', label: '₹10,000 - ₹15,000' },
+  { value: '15k-20k', label: '₹15,000 - ₹20,000' },
+  { value: '20k-35k', label: '₹20,000 - ₹35,000' },
+  { value: '35k-plus', label: '₹35,000+' }
 ];
 
 const timelineOptions = [
