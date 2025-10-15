@@ -104,7 +104,7 @@ export function QuoteModal({
   preSelectedService
 }: QuoteModalProps) {
   const [step, setStep] = useState(1);
-  const [dir, setDir] = useState<1 | -1>(1); // for slide direction
+  const [dir, setDir] = useState<1 | -1>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [honeypot, setHoneypot] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
@@ -126,7 +126,6 @@ export function QuoteModal({
     consent: false
   });
 
-  // Sync preselected props when they change (e.g., opened from a service page)
   useEffect(() => {
     if (!isOpen) return;
     setFormData(prev => ({
@@ -136,32 +135,26 @@ export function QuoteModal({
     }));
   }, [isOpen, preSelectedCategory, preSelectedService]);
 
-  // Autosave to localStorage
   useEffect(() => {
     if (!isOpen) return;
     const payload = { step, formData };
     localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
   }, [isOpen, step, formData]);
 
-  // Restore draft on open
   useEffect(() => {
     if (!isOpen) return;
     const raw = localStorage.getItem(DRAFT_KEY);
     if (raw) {
       try {
         const { step: s, formData: fd } = JSON.parse(raw);
-        // Respect preselected inputs (if provided now)
         setFormData(prev => ({
           ...fd,
           category: preSelectedCategory || fd.category || '',
           service: preSelectedService || fd.service || ''
         }));
         if (typeof s === 'number') setStep(Math.min(Math.max(s, 1), 4));
-      } catch {
-        // ignore parse errors
-      }
+      } catch {}
     }
-    // Reset scroll to top of modal content
     requestAnimationFrame(() => {
       containerRef.current?.scrollTo({ top: 0 });
     });
@@ -235,7 +228,6 @@ export function QuoteModal({
     try {
       const { submitQuote } = await import('../lib/api');
 
-      // Preferred: send JSON (backwards compatible)
       const result = await submitQuote({
         fullName: formData.fullName,
         email: formData.email,
@@ -248,7 +240,6 @@ export function QuoteModal({
         brief: formData.brief,
         goals: formData.goals,
         references: formData.references,
-        // You can handle files in your API later (FormData)
         submittedAt: new Date().toISOString()
       });
 
@@ -256,7 +247,7 @@ export function QuoteModal({
         localStorage.removeItem(DRAFT_KEY);
         window.location.href = '/thank-you';
       } else {
-        alert('Something went wrong. Please try again.');
+        alert(result?.error || 'Something went wrong. Please try again.');
       }
     } catch (err) {
       console.error('Error submitting quote:', err);
@@ -296,18 +287,16 @@ export function QuoteModal({
   const stepTitles = ['Contact', 'Project', 'Details', 'Review'];
   const progress = ((step - 1) / (stepTitles.length - 1)) * 100;
 
-  // File handling (UI only; wire API later if desired)
   const onFiles = (files: FileList | null) => {
     if (!files) return;
-    const max = 10 * 1024 * 1024; // 10 MB
+    const max = 10 * 1024 * 1024;
     const accepted = Array.from(files).filter(f => f.size <= max);
-    setAttachments(prev => [...prev, ...accepted].slice(0, 5)); // cap 5 files
+    setAttachments(prev => [...prev, ...accepted].slice(0, 5));
   };
   const removeAttachment = (idx: number) => {
     setAttachments(prev => prev.filter((_, i) => i !== idx));
   };
 
-  // Animations between steps
   const slideVariants = {
     enter: (d: 1 | -1) => ({ x: d > 0 ? 40 : -40, opacity: 0 }),
     center: { x: 0, opacity: 1, transition: { duration: 0.35, ease: 'easeOut' } },
@@ -342,21 +331,18 @@ export function QuoteModal({
               </Button>
             )}
             {step < 4 ? (
-              <Button onClick={handleNext}>
-                Next
-              </Button>
+              <Button onClick={handleNext}>Next</Button>
             ) : (
-              <Button type="submit" loading={isSubmitting} onClick={(e: any) => e.preventDefault()}>
-                {/* Prevent default here; actual submit is on form element */}
-                Submitting…
+              <Button type="submit" form="quoteForm" loading={isSubmitting}>
+                {isSubmitting ? 'Submitting…' : 'Submit Quote Request'}
               </Button>
             )}
           </div>
         </div>
       }
     >
-      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
-        {/* Top progress bar */}
+      <form id="quoteForm" onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
+        {/* Progress */}
         <div className="px-6 pt-4">
           <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div
@@ -366,8 +352,18 @@ export function QuoteModal({
           </div>
         </div>
 
-        <div ref={containerRef} className="p-6 space-y-6 overflow-y-auto max-h-[calc(88vh-8rem)]">
-          {/* Stepper Pills */}
+        {/* CONTENT SCROLLER
+            Keep content within viewport, no overflow outside modal */}
+        <div
+          ref={containerRef}
+          className="
+            p-6 space-y-6 overflow-y-auto overscroll-contain
+            max-h-[calc(100vh-230px)]
+            sm:max-h-[calc(100vh-250px)]
+            lg:max-h-[calc(100vh-280px)]
+          "
+        >
+          {/* Stepper */}
           <div className="flex items-center justify-between">
             {stepTitles.map((label, i) => {
               const n = i + 1;
@@ -385,11 +381,12 @@ export function QuoteModal({
               );
             })}
           </div>
-          <div className="flex justify-between text-[11px] uppercase tracking-wide text-gray-500">
+          {/* Compact labels on small screens */}
+          <div className="hidden sm:flex justify-between text-[11px] uppercase tracking-wide text-gray-500">
             {stepTitles.map((label) => <span key={label}>{label}</span>)}
           </div>
 
-          {/* honeypot */}
+          {/* Honeypot */}
           <input
             type="text"
             name="website"
@@ -403,14 +400,7 @@ export function QuoteModal({
           {/* Steps */}
           <AnimatePresence mode="popLayout" custom={dir}>
             {step === 1 && (
-              <motion.div
-                key="step-1"
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                custom={dir}
-              >
+              <motion.div key="step-1" variants={slideVariants} initial="enter" animate="center" exit="exit" custom={dir}>
                 <h3 className="text-xl font-bold text-[#14276d] mb-4">Contact Information</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <Input
@@ -447,14 +437,7 @@ export function QuoteModal({
             )}
 
             {step === 2 && (
-              <motion.div
-                key="step-2"
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                custom={dir}
-              >
+              <motion.div key="step-2" variants={slideVariants} initial="enter" animate="center" exit="exit" custom={dir}>
                 <h3 className="text-xl font-bold text-[#14276d] mb-4">Project Details</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <Select
@@ -491,10 +474,11 @@ export function QuoteModal({
                   />
                 </div>
 
-                {/* Quick service chips */}
                 {formData.category && (
                   <div className="mt-4">
-                    <p className="text-sm text-gray-600 mb-2">Popular in {categoryOptions.find(c=>c.value===formData.category)?.label}:</p>
+                    <p className="text-sm text-gray-600 mb-2">
+                      Popular in {categoryOptions.find(c=>c.value===formData.category)?.label}:
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {(servicesByCategory[formData.category] || []).slice(1,5).map(s => (
                         <button
@@ -514,14 +498,7 @@ export function QuoteModal({
             )}
 
             {step === 3 && (
-              <motion.div
-                key="step-3"
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                custom={dir}
-              >
+              <motion.div key="step-3" variants={slideVariants} initial="enter" animate="center" exit="exit" custom={dir}>
                 <h3 className="text-xl font-bold text-[#14276d] mb-4">Tell us more</h3>
                 <Textarea
                   label="Project Brief"
@@ -533,7 +510,6 @@ export function QuoteModal({
                   error={errors.brief}
                 />
 
-                {/* Goals as selectable chips */}
                 <div className="mt-4">
                   <label className="block text-sm font-medium text-[#14276d] mb-3">
                     Goals (select all that apply)
@@ -565,7 +541,6 @@ export function QuoteModal({
                   placeholder="Share any websites, competitors, or examples you like..."
                 />
 
-                {/* Attachments (UI only) */}
                 <div className="mt-4">
                   <label className="block text-sm font-medium text-[#14276d] mb-2">
                     Attachments (PDF/Images, up to 10MB each)
@@ -606,16 +581,11 @@ export function QuoteModal({
             )}
 
             {step === 4 && (
-              <motion.div
-                key="step-4"
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                custom={dir}
-              >
+              <motion.div key="step-4" variants={slideVariants} initial="enter" animate="center" exit="exit" custom={dir}>
                 <h3 className="text-xl font-bold text-[#14276d] mb-4">Review Your Submission</h3>
-                <div className="bg-gray-50 rounded-xl p-6 space-y-4">
+
+                {/* Make review block scroll-friendly and wrap long text */}
+                <div className="bg-gray-50 rounded-xl p-6 space-y-4 break-words">
                   <div>
                     <h4 className="font-semibold text-[#14276d] mb-1">Contact</h4>
                     <p className="text-sm text-gray-600">{formData.fullName}</p>
@@ -656,7 +626,7 @@ export function QuoteModal({
                     <div>
                       <h4 className="font-semibold text-[#14276d] mb-1">Attachments</h4>
                       <ul className="text-sm text-gray-600 list-disc list-inside">
-                        {attachments.map((f, i) => <li key={i}>{f.name}</li>)}
+                        {attachments.map((f, i) => <li key={i} className="truncate">{f.name}</li>)}
                       </ul>
                     </div>
                   )}
@@ -675,24 +645,10 @@ export function QuoteModal({
                   </span>
                 </label>
                 {errors.consent && <p className="text-sm text-red-500">{errors.consent}</p>}
-
-                {/* Submit row for keyboard users (button in footer handles click UX) */}
-                <div className="sr-only">
-                  <button type="submit">Submit</button>
-                </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-
-        {/* We keep the actual submit on form to respect Enter key on step 4 */}
-        {step === 4 && (
-          <div className="px-6 pb-4 flex justify-end">
-            <Button type="submit" loading={isSubmitting}>
-              {isSubmitting ? 'Submitting…' : 'Submit Quote Request'}
-            </Button>
-          </div>
-        )}
       </form>
     </Modal>
   );

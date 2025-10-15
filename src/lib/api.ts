@@ -1,7 +1,4 @@
 // src/lib/api.ts
-import dotenv from 'dotenv';
-dotenv.config();
-
 import { supabase } from './supabase';
 
 export interface QuoteSubmission {
@@ -27,30 +24,6 @@ export interface ContactSubmission {
   submittedAt: string;
 }
 
-/** Try multiple backends so it works locally + on Vercel/Netlify */
-const EMAIL_ENDPOINTS = [
-  '/api/notify',                 // Vercel
-  '/.netlify/functions/notify',  // Netlify
-];
-
-/** Fire-and-forget email notifier (returns boolean success) */
-async function notify(kind: 'quote' | 'contact', payload: any): Promise<boolean> {
-  for (const url of EMAIL_ENDPOINTS) {
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind, payload }),
-      });
-      if (res.ok) return true;
-    } catch {
-      // try next endpoint
-    }
-  }
-  console.warn('Email notify failed (no endpoint reachable).');
-  return false;
-}
-
 export async function submitQuote(
   data: QuoteSubmission
 ): Promise<{ success: boolean; error?: string }> {
@@ -67,7 +40,7 @@ export async function submitQuote(
       brief: data.brief,
       goals: data.goals || [],
       reference_links: data.references || '',
-      submitted_at: data.submittedAt,
+      submitted_at: data.submittedAt
     });
 
     if (error) {
@@ -75,11 +48,30 @@ export async function submitQuote(
       return { success: false, error: error.message };
     }
 
-    // Send notification email (non-blocking, but awaited here to surface errors if you want)
-    await notify('quote', data);
+    // 🔔 Fire the email notification (server: /api/notify)
+    // Keep it non-blocking but await so we can surface errors if needed.
+    const notify = await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'quote',
+        to: 'reachpixelflare@gmail.com',
+        cc: ['info@pixelflare.in', 'services@pixelflare.in'],
+        subject: `New Quote Request — ${data.category} / ${data.service}`,
+        payload: data
+      })
+    });
+
+    if (!notify.ok) {
+      const body = await notify.json().catch(() => ({}));
+      console.error('notify failed', notify.status, body);
+      // We still consider the submission saved; but return error if you want:
+      // return { success: false, error: 'Saved but email failed' };
+    }
+
     return { success: true };
-  } catch (error) {
-    console.error('Error submitting quote:', error);
+  } catch (err) {
+    console.error('Error submitting quote:', err);
     return { success: false, error: 'Failed to submit quote' };
   }
 }
@@ -93,7 +85,7 @@ export async function submitContact(
       email: data.email,
       phone: data.phone || '',
       message: data.message,
-      submitted_at: data.submittedAt,
+      submitted_at: data.submittedAt
     });
 
     if (error) {
@@ -101,11 +93,28 @@ export async function submitContact(
       return { success: false, error: error.message };
     }
 
-    // Send notification email
-    await notify('contact', data);
+    // 🔔 Email for contact as well
+    const notify = await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'contact',
+        to: 'reachpixelflare@gmail.com',
+        cc: ['info@pixelflare.in', 'services@pixelflare.in'],
+        subject: `New Contact Message — ${data.name}`,
+        payload: data
+      })
+    });
+
+    if (!notify.ok) {
+      const body = await notify.json().catch(() => ({}));
+      console.error('notify failed', notify.status, body);
+      // return { success: false, error: 'Saved but email failed' };
+    }
+
     return { success: true };
-  } catch (error) {
-    console.error('Error submitting contact:', error);
+  } catch (err) {
+    console.error('Error submitting contact:', err);
     return { success: false, error: 'Failed to submit contact form' };
   }
 }

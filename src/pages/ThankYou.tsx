@@ -14,15 +14,15 @@ export function ThankYou() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button size="lg" onClick={() => window.location.href = '/'}>
-            <Home className="mr-2 w-5 h-5" />
+            <Home className="mr-2 w-10 h-5" />
             Go Home
           </Button>
           <Button
             size="lg"
             variant="outline"
-            onClick={() => window.location.href = `mailto:hello@pixelflare.agency`}
+            onClick={() => window.location.href = `mailto:info@pixelflare.in`}
           >
-            <Mail className="mr-2 w-5 h-5" />
+            <Mail className="mr-2 w-10 h-5" />
             Email Us
           </Button>
         </div>
