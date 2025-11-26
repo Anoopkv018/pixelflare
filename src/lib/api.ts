@@ -27,19 +27,53 @@ export interface ContactSubmission {
 /* ========= Config ========= */
 const NOTIFY_URL = 'https://pixelflare-2zw4.vercel.app/api/notify';
 
+type NotifyPayload = Record<string, any>;
+
 /* ========= Helpers ========= */
-export async function postNotify(payload: unknown): Promise<boolean> {
+/**
+ * Send payload to the Vercel notify function.
+ * If `attachment` is provided, we send multipart/form-data
+ * (to match your formidable-based notify.ts).
+ */
+export async function postNotify(
+  payload: NotifyPayload,
+  attachment?: File | null
+): Promise<boolean> {
   try {
-    const res = await fetch(NOTIFY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    let options: RequestInit;
+
+    // --- always use FormData so backend parsing is consistent ---
+    const form = new FormData();
+
+    Object.entries(payload).forEach(([key, value]) => {
+      if (value === undefined || value === null) return;
+
+      if (Array.isArray(value)) {
+        value.forEach((v) => form.append(key, String(v)));
+      } else {
+        form.append(key, String(value));
+      }
     });
+
+    if (attachment) {
+      // field name must match `files.attachment` in notify.ts
+      form.append('attachment', attachment);
+    }
+
+    options = {
+      method: 'POST',
+      body: form,
+      // do NOT set Content-Type – browser will set proper multipart boundary
+    };
+
+    const res = await fetch(NOTIFY_URL, options);
+
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       console.error('notify failed', res.status, body);
       return false;
     }
+
     return true;
   } catch (e) {
     console.error('notify error', e);
@@ -50,7 +84,8 @@ export async function postNotify(payload: unknown): Promise<boolean> {
 /* ========= Public API ========= */
 export async function submitQuote(
   data: QuoteSubmission,
-  recaptchaToken?: string
+  recaptchaToken?: string,
+  attachment?: File | null   // 👈 optional file (backwards-compatible)
 ): Promise<{ success: boolean; error?: string; emailSent?: boolean }> {
   try {
     const { error } = await supabase.from('quote_submissions').insert({
@@ -73,23 +108,26 @@ export async function submitQuote(
       return { success: false, error: error.message };
     }
 
-    // ✅ map `fullName` → `name` for email notification
-    const emailSent = await postNotify({
-      kind: 'quote',
-      name: data.fullName,   // 👈 this is the critical fix
-      email: data.email,
-      phone: data.phone,
-      company: data.company,
-      category: data.category,
-      service: data.service,
-      budget: data.budget,
-      timeline: data.timeline,
-      brief: data.brief,
-      goals: data.goals,
-      references: data.references,
-      recaptchaToken,
-      submittedAt: data.submittedAt,
-    });
+    // map fullName → name for email template
+    const emailSent = await postNotify(
+      {
+        kind: 'quote',
+        name: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        company: data.company,
+        category: data.category,
+        service: data.service,
+        budget: data.budget,
+        timeline: data.timeline,
+        brief: data.brief,
+        goals: data.goals,
+        references: data.references,
+        recaptchaToken,
+        submittedAt: data.submittedAt,
+      },
+      attachment ?? undefined
+    );
 
     return { success: true, emailSent };
   } catch (err) {
@@ -100,7 +138,8 @@ export async function submitQuote(
 
 export async function submitContact(
   data: ContactSubmission,
-  recaptchaToken?: string
+  recaptchaToken?: string,
+  attachment?: File | null   // 👈 optional file
 ): Promise<{ success: boolean; error?: string; emailSent?: boolean }> {
   try {
     const { error } = await supabase.from('contact_submissions').insert({
@@ -116,11 +155,14 @@ export async function submitContact(
       return { success: false, error: error.message };
     }
 
-    const emailSent = await postNotify({
-      kind: 'contact',
-      ...data,
-      recaptchaToken,
-    });
+    const emailSent = await postNotify(
+      {
+        kind: 'contact',
+        ...data,
+        recaptchaToken,
+      },
+      attachment ?? undefined
+    );
 
     return { success: true, emailSent };
   } catch (err) {
