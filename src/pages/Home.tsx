@@ -12,6 +12,7 @@ import {
   HeadphonesIcon,
   Phone,
   Mail,
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -515,6 +516,7 @@ export function Home({ onQuoteClick }: HomeProps) {
           SEO & outreach
         </span>
       </div>
+      
     </div>
 
     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -560,9 +562,28 @@ export function Home({ onQuoteClick }: HomeProps) {
                 <span>Ideal for brands that want a clean, ready-to-launch setup.</span>
               </div>
             </Card>
+            
           </motion.div>
         );
       })}
+      <div className="md:col-span-2 lg:col-span-4 flex justify-center mt-4">
+  <Button
+    size="md"
+    variant="primary"
+    className="flex items-center justify-center gap-2"
+    onClick={() => {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/pricing';
+      }
+    }}
+  >
+    <span className="inline-flex items-center gap-2">
+      <ArrowRight className="h-4 w-4" />
+      <span>View our Pricing</span>
+    </span>
+  </Button>
+</div>
+
     </div>
   </div>
 </section>

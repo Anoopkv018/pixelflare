@@ -147,7 +147,7 @@ export const pricingTiers: PricingTier[] = [
     features: [
       "Script writing included",
       "Professional filming or animation",
-      "Up to 90 seconds final video",
+      "Up to 10 mins final video",
       "Professional voiceover",
       "Custom graphics & animations",
       "Background music & SFX",

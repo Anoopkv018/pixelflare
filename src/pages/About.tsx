@@ -252,7 +252,7 @@ export function About({ onQuoteClick }: AboutProps) {
   return (
     <div className="relative">
       {/* ===== HERO ===== */}
-      <section className="relative overflow-hidden bg-[radial-gradient(1200px_600px_at_5%_-10%,#fff0f6_30%,transparent_70%),radial-gradient(900px_500px_at_95%_-10%,#eef2ff_25%,transparent_70%)] py-20 md:py-20">
+      <section className="relative overflow-hidden bg-[radial-gradient(1200px_600px_at_5%_-10%,#fff0f6_30%,transparent_70%),radial-gradient(900px_500px_at_95%_-10%,#eef2ff_25%,transparent_70%)] py-20 md:py-10">
         <GradientOrb className="-left-24 -top-28" size={520} />
         <GradientOrb
           className="right-[-140px] top-10"
