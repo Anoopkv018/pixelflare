@@ -59,22 +59,6 @@ export function ThankYou() {
                   <span>Go Home</span>
                 </span>
               </Button>
-
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => (window.location.href = `mailto:info@pixelflare.in`)}
-                className="
-                  rounded-full px-6 sm:px-8
-                  border-[#e2e8f0] bg-white/80 text-[#fe2681]
-                  hover:border-[#fe2681] hover:bg-[#fff5fb]
-                "
-              >
-                <span className="inline-flex items-center gap-2">
-                  <Mail className="w-5 h-5" />
-                  <span>Email Us</span>
-                </span>
-              </Button>
             </div>
 
             {/* Social icons only */}
