@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
-import { navigation, megaMenuColumn } from '../../config/site';
+import { Menu, X, ChevronDown, Mail, MapPin, Sparkles, Linkedin, Instagram, Facebook, } from 'lucide-react';
+import { navigation, megaMenuColumn, siteConfig } from '../../config/site';
 import { Button } from '../ui/Button';
 
 interface HeaderProps {
@@ -16,9 +16,10 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
   const headerRef = useRef<HTMLElement | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isActive = (href: string) => (href === '/' ? currentPath === '/' : currentPath.startsWith(href));
+  const isActive = (href: string) =>
+    href === '/' ? currentPath === '/' : currentPath.startsWith(href);
 
-  // ---- desktop mega: forgiving close ----
+  /* -------------------- desktop mega: forgiving close -------------------- */
   const scheduleClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     closeTimer.current = setTimeout(() => setOpenIndex(null), 120);
@@ -27,7 +28,7 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
     if (closeTimer.current) clearTimeout(closeTimer.current);
   };
 
-  // ---- close mega on outside click / ESC; close mobile on ESC ----
+  /* ---- close mega on outside click / ESC; close mobile on ESC ---- */
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
       if (!headerRef.current) return;
@@ -47,7 +48,7 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
     };
   }, []);
 
-  // ---- lock body scroll when mobile open ----
+  /* ---------------------- lock body scroll when mobile ---------------------- */
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
     return () => {
@@ -58,23 +59,67 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-50 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-gray-100 shadow-sm"
+      className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60"
     >
+      {/* === TOPBAR (Brighter Version of Same Gradient Family) === */}
+<div className="hidden lg:block bg-gradient-to-r from-[#263578] via-[#4f2f84] to-[#fe2681] border-b border-white/50">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-between text-[13px] text-[#ffffff] py-2">
+      
+      {/* Left – Tagline */}
+      <div className="flex items-center gap-2">
+        <Sparkles className="w-4 h-4 text-[#fe2681]" />
+        <span className="font-medium tracking-wide">
+          Crafting Performance-Driven Digital Experiences
+        </span>
+      </div>
+
+      {/* Right – Social links */}
+      <div className="flex items-center gap-3">
+              {[
+                { href: siteConfig.social.linkedin, Icon: Linkedin, label: 'LinkedIn' },
+                { href: siteConfig.social.instagram, Icon: Instagram, label: 'Instagram' },
+                { href: siteConfig.social.facebook, Icon: Facebook, label: 'Facebook' },
+              ].map(({ href, Icon, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="group inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 hover:bg-white/25 transition-colors"
+                >
+                  <Icon size={18} className="text-white group-hover:opacity-90" />
+                </a>
+              ))}
+            </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+      {/* ===== MAIN NAV ROW ===== */}
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* ROW */}
-        <div className="flex items-center min-h-[96px] md:min-h-[104px] lg:min-h-[112px] py-2">
-          {/* Logo (taller) */}
-          <a href="/" className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center min-h-[80px] md:min-h-[90px] lg:min-h-[96px] py-2">
+          {/* Logo */}
+          <a
+            href="/"
+            className="flex items-center gap-3 shrink-0"
+          >
             <img
               src="/brand/pixelflare-logo.png"
               alt="PixelFlare"
-              className="h-16 w-auto md:h-[68px] lg:h-[85px]"
+              className="h-14 w-auto md:h-[64px] lg:h-[72px] drop-shadow-sm"
+              loading="eager"
+              decoding="sync"
             />
           </a>
 
           {/* Desktop nav */}
           <div className="ml-auto hidden lg:flex items-center gap-8">
-            <ul className="flex items-center gap-7 xl:gap-8">
+            <ul className="flex items-center gap-6 xl:gap-7">
               {navigation.main.map((item, idx) => {
                 const hasMega = !!item.megaMenu;
                 const open = openIndex === idx;
@@ -102,12 +147,18 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
                         e.preventDefault();
                         setOpenIndex(open ? null : idx);
                       }}
-                      className={`inline-flex items-center gap-1.5 text-[#14276d] hover:text-[#fe2681] transition-colors font-medium relative py-1
-                        ${isActive(item.href) ? 'after:absolute after:bottom-[-8px] after:left-0 after:h-0.5 after:w-full after:bg-[#fe2681]' : ''}`}
+                      className={`inline-flex items-center gap-1.5 text-sm font-medium relative px-2 py-1.5 rounded-full transition-all
+                        ${
+                          isActive(item.href)
+                            ? 'bg-[#14276d] text-white shadow-sm'
+                            : 'text-[#14276d] hover:text-[#fe2681] hover:bg-slate-50'
+                        }`}
                     >
                       {item.label}
                       {hasMega && (
-                        <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+                        <ChevronDown
+                          className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`}
+                        />
                       )}
                     </a>
 
@@ -120,19 +171,19 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
                       >
                         {/* bridge to remove hover gap */}
                         <div className="h-3 w-full" />
-                        <div className="bg-white rounded-2xl shadow-2xl p-6 xl:p-8 border border-gray-100">
+                        <div className="bg-white rounded-2xl shadow-2xl p-6 xl:p-8 border border-slate-100">
                           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {megaMenuColumn.map((column) => (
                               <div key={column.title}>
-                                <h3 className="text-[#fe2681] font-bold text-xs mb-3 uppercase tracking-wide">
+                                <h3 className="text-[#fe2681] font-bold text-[11px] mb-3 uppercase tracking-[0.2em]">
                                   {column.title}
                                 </h3>
-                                <ul className="space-y-2">
+                                <ul className="space-y-1.5">
                                   {column.items.map((sub) => (
                                     <li key={sub.label}>
                                       <a
                                         href={sub.href}
-                                        className="text-[#14276d] hover:text-[#fe2681] transition-colors text-sm block py-1"
+                                        className="text-sm text-[#14276d] hover:text-[#fe2681] transition-colors block py-1"
                                       >
                                         {sub.label}
                                       </a>
@@ -157,18 +208,18 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
 
           {/* Mobile toggler */}
           <button
-            className="ml-auto lg:hidden text-[#14276d]"
+            className="ml-auto lg:hidden inline-flex items-center justify-center rounded-full border border-slate-200 bg-white/70 px-2.5 py-2 text-[#14276d] shadow-sm"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileOpen}
             aria-controls="mobile-drawer"
           >
-            {mobileOpen ? <X size={28} /> : <Menu size={28} />}
+            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </nav>
 
-      {/* ===== MOBILE OVERLAY FLYOUT via PORTAL (prevents clipping by transformed ancestors) ===== */}
+      {/* ===== MOBILE OVERLAY FLYOUT via PORTAL ===== */}
       {typeof window !== 'undefined' &&
         createPortal(
           <div
@@ -190,22 +241,29 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
             {/* Right flyout panel */}
             <div
               className={`
-                absolute right-0 top-0 h-full w-[90%] max-w-sm bg-white shadow-2xl border-l border-gray-100
+                absolute right-0 top-0 h-full w-[88%] max-w-sm bg-white shadow-2xl border-l border-slate-100
                 transform transition-transform duration-300 will-change-transform
                 ${mobileOpen ? 'translate-x-0' : 'translate-x-full'}
               `}
             >
               {/* Drawer header */}
-              <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
+              <div className="flex items-center justify-between px-4 py-4 border-b border-slate-100">
                 <a href="/" className="flex items-center gap-2">
-                  <img src="/brand/pixelflare-logo.png" alt="PixelFlare" className="h-12 w-auto" />
+                  <img
+                    src="/brand/pixelflare-logo.png"
+                    alt="PixelFlare"
+                    className="h-10 w-auto"
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="sync"
+                  />
                 </a>
                 <button
                   className="text-[#14276d]"
                   aria-label="Close menu"
                   onClick={() => setMobileOpen(false)}
                 >
-                  <X size={24} />
+                  <X size={22} />
                 </button>
               </div>
 
@@ -216,10 +274,17 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
                   const expanded = mobileExpanded === idx;
 
                   return (
-                    <div key={item.label} className="border-b last:border-b-0 border-gray-100 py-2">
+                    <div
+                      key={item.label}
+                      className="border-b last:border-b-0 border-slate-100 py-1.5"
+                    >
                       <button
-                        className={`w-full flex items-center justify-between py-2 text-left font-medium
-                          ${isActive(item.href) ? 'text-[#fe2681]' : 'text-[#14276d] hover:text-[#fe2681]'}`}
+                        className={`w-full flex items-center justify-between py-2 text-left text-sm font-medium
+                          ${
+                            isActive(item.href)
+                              ? 'text-[#fe2681]'
+                              : 'text-[#14276d] hover:text-[#fe2681]'
+                          }`}
                         onClick={() => {
                           if (!hasMega) {
                             setMobileOpen(false);
@@ -234,7 +299,9 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
                         <span>{item.label}</span>
                         {hasMega && (
                           <ChevronDown
-                            className={`w-5 h-5 transition-transform ${expanded ? 'rotate-180' : ''}`}
+                            className={`w-5 h-5 transition-transform ${
+                              expanded ? 'rotate-180' : ''
+                            }`}
                           />
                         )}
                       </button>
@@ -249,7 +316,7 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
                           <div className="pl-2 pb-3 pt-1 grid grid-cols-1 gap-4">
                             {megaMenuColumn.map((column) => (
                               <div key={column.title}>
-                                <h4 className="text-[#fe2681] font-bold text-xs uppercase mb-2">
+                                <h4 className="text-[#fe2681] font-bold text-[11px] uppercase mb-1.5 tracking-[0.18em]">
                                   {column.title}
                                 </h4>
                                 <ul className="space-y-1">
@@ -274,7 +341,7 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
                   );
                 })}
 
-                <div className="pt-3">
+                <div className="pt-4">
                   <Button
                     onClick={() => {
                       onQuoteClick();
@@ -285,6 +352,13 @@ export function Header({ onQuoteClick, currentPath }: HeaderProps) {
                   >
                     Get a Quote
                   </Button>
+
+                  <a
+                    href="mailto:info@pixelflare.in"
+                    className="mt-3 block text-center text-xs text-slate-500 hover:text-[#fe2681]"
+                  >
+                    Prefer email? info@pixelflare.in
+                  </a>
                 </div>
               </div>
             </div>

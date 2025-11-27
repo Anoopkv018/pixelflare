@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Target,
@@ -250,7 +251,39 @@ export function About({ onQuoteClick }: AboutProps) {
   ];
 
   return (
+   
+
     <div className="relative">
+
+      <Helmet>
+        <title>
+          About PixelFlare | Website Design & Digital Marketing Agency in Bangalore & Mysore
+        </title>
+
+        <meta
+          name="description"
+          content="PixelFlare is a Bangalore-based website design, development and digital marketing agency with a strong presence in Mysore, helping businesses across India build fast, conversion-focused digital experiences."
+        />
+
+        <meta
+          name="keywords"
+          content="About PixelFlare, web design company Bangalore, website development Bangalore, digital marketing agency Bangalore, web design Mysore, SEO services Bangalore, branding agency in India"
+        />
+
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:title"
+          content="About PixelFlare | Website & Marketing Agency in Bangalore & Mysore"
+        />
+        <meta
+          property="og:description"
+          content="Learn about PixelFlare, a Bangalore-based web design and digital marketing studio serving Mysore and brands across India with high-performing websites, SEO and branding."
+        />
+        <meta property="og:site_name" content="PixelFlare" />
+        <meta property="og:url" content="https://pixelflare.in/about" />
+
+        <link rel="canonical" href="https://pixelflare.in/about" />
+      </Helmet>
       {/* ===== HERO ===== */}
       <section className="relative overflow-hidden bg-[radial-gradient(1200px_600px_at_5%_-10%,#fff0f6_30%,transparent_70%),radial-gradient(900px_500px_at_95%_-10%,#eef2ff_25%,transparent_70%)] py-20 md:py-10">
         <GradientOrb className="-left-24 -top-28" size={520} />

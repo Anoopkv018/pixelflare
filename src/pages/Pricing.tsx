@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Sparkles, X, Phone, MessageCircle, ArrowRight } from 'lucide-react';
@@ -58,6 +59,13 @@ function ModalShell({ title, subtitle, onClose, children }: ModalShellProps) {
 /* ================ MAIN COMPONENT ================ */
 
 export function Pricing({ onQuoteClick }: PricingProps) {
+    const pageTitle =
+    'PixelFlare Pricing – Websites, Marketing, Video & Branding Packages';
+  const pageDescription =
+    'View PixelFlare pricing for websites, marketing, video production, and branding. Transparent packages plus custom calculators to estimate the right budget for your business.';
+  const pageUrl = 'https://pixelflare.in/pricing';
+  const pageImage = 'https://pixelflare.in/vite.png'; // update to your real image
+
   // Billing toggle (Marketing only)
   const [marketingBilling, setMarketingBilling] = useState<BillingPeriod>('monthly');
 
@@ -312,6 +320,35 @@ const [marketingGoal, setMarketingGoal] = useState(
 
   return (
     <div>
+      <Helmet>
+    <title>
+      PixelFlare Pricing – Website & Marketing Packages in Bangalore & Mysore
+    </title>
+
+    <meta
+      name="description"
+      content="View PixelFlare pricing for website design, digital marketing, video production and branding. Transparent packages for startups and businesses in Bangalore, Mysore and across India."
+    />
+
+    <meta
+      name="keywords"
+      content="
+        PixelFlare pricing,
+        website design pricing Bangalore,
+        digital marketing packages Bangalore,
+        SEO packages Bangalore,
+        social media management Bangalore,
+        website design Mysore,
+        web design agency Bangalore,
+        web design agency Mysore,
+        branding packages Bangalore,
+        video production pricing Bangalore,
+        website and marketing pricing India
+      "
+    />
+
+    <link rel="canonical" href="https://pixelflare.in/pricing" />
+  </Helmet>
       {/* ===== HERO ===== */}
       <section className="relative overflow-hidden bg-[radial-gradient(1200px_600px_at_5%_-10%,#fff0f6_30%,transparent_70%),radial-gradient(900px_500px_at_95%_-10%,#eef2ff_25%,transparent_70%)] py-16 md:py-10">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

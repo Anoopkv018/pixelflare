@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import React, { useState } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import {
@@ -58,6 +59,12 @@ function GradientOrb({
 }
 
 export function Home({ onQuoteClick }: HomeProps) {
+    const pageTitle = 'PixelFlare – Websites, Branding & Marketing Studio';
+  const pageDescription =
+    'PixelFlare helps businesses launch and grow with conversion-focused websites, branding, SEO, content, and video — everything you need in one digital studio.';
+  const pageUrl = 'https://pixelflare.in/';
+  const pageImage = 'https://pixelflare.in/vite.png'; // update to your real OG image
+
   const iconMap: Record<string, any> = { Layout, TrendingUp, Video, Sparkles };
 
   const features = [
@@ -169,6 +176,34 @@ export function Home({ onQuoteClick }: HomeProps) {
 
   return (
     <div className="relative">
+      <Helmet>
+        <title>
+          PixelFlare – Website Design & Digital Marketing Agency in Bangalore & Mysore
+        </title>
+
+        <meta
+          name="description"
+          content="PixelFlare is a website design and digital marketing studio based in Bangalore and Mysore. We build fast, conversion-focused websites, branding, videos and SEO-backed marketing for businesses across India."
+        />
+
+        <meta
+          name="keywords"
+          content="
+            website design agency Bangalore,
+            web design company Bangalore,
+            digital marketing agency Bangalore,
+            SEO services Bangalore,
+            social media marketing Bangalore,
+            website design Mysore,
+            web design Mysore,
+            digital marketing Mysore,
+            branding agency Bangalore,
+            website and marketing agency India
+          "
+        />
+
+        <link rel="canonical" href="https://pixelflare.in/" />
+      </Helmet>
       {/* ===== HERO (mouse-hover parallax) ===== */}
       <section
         onMouseMove={handleHeroMouseMove}

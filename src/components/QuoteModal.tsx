@@ -320,20 +320,28 @@ export function QuoteModal({
               setFormData(f => ({ ...f, brief: '', goals: [], references: '' }));
               setAttachments([]);
             }}
+            className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500 hover:text-[#fe2681]"
           >
             Start Over
           </Button>
 
           <div className="ml-auto flex items-center gap-3">
             {step > 1 && (
-              <Button variant="outline" onClick={handleBack}>
+              <Button variant="outline" onClick={handleBack} className="rounded-full">
                 Back
               </Button>
             )}
             {step < 4 ? (
-              <Button onClick={handleNext}>Next</Button>
+              <Button onClick={handleNext} className="rounded-full shadow-[0_10px_30px_rgba(254,38,129,0.35)]">
+                Next
+              </Button>
             ) : (
-              <Button type="submit" form="quoteForm" loading={isSubmitting}>
+              <Button
+                type="submit"
+                form="quoteForm"
+                loading={isSubmitting}
+                className="rounded-full shadow-[0_10px_30px_rgba(20,39,109,0.4)]"
+              >
                 {isSubmitting ? 'Submitting…' : 'Submit Quote Request'}
               </Button>
             )}
@@ -343,12 +351,21 @@ export function QuoteModal({
     >
       <form id="quoteForm" onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
         {/* Progress */}
-        <div className="px-6 pt-4">
-          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="px-6 pt-4 pb-2">
+          <div className="h-1.5 bg-slate-100/80 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#fe2681] via-[#bf1c60] to-[#14276d]"
+              className="h-full bg-gradient-to-r from-[#fe2681] via-[#ff7fb5] to-[#14276d] transition-[width] duration-300 ease-out"
               style={{ width: `${progress}%` }}
             />
+          </div>
+          <div className="mt-3 flex items-center justify-between text-[11px] text-gray-500">
+            <span className="uppercase tracking-[0.18em] font-semibold">
+              Step {step} of {stepTitles.length}
+            </span>
+            <span className="hidden sm:inline-flex items-center gap-1">
+              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              <span>Typically 2–3 minutes to complete</span>
+            </span>
           </div>
         </div>
 
@@ -361,21 +378,36 @@ export function QuoteModal({
             max-h-[calc(100vh-230px)]
             sm:max-h-[calc(100vh-250px)]
             lg:max-h-[calc(100vh-280px)]
+            bg-gradient-to-b from-slate-50/80 via-white to-slate-50/80
+            rounded-2xl border border-slate-100 shadow-[0_18px_40px_rgba(15,23,42,0.08)]
           "
         >
           {/* Stepper */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between rounded-full bg-white/70 px-3 py-2 border border-slate-100 shadow-sm">
             {stepTitles.map((label, i) => {
               const n = i + 1;
               const active = n <= step;
               return (
                 <div key={label} className="flex items-center flex-1 min-w-0">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold
-                    ${active ? 'bg-[#fe2681] text-white' : 'bg-gray-200 text-gray-600'}`}>
+                  <div
+                    className={`
+                      w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold
+                      transition-all duration-200
+                      ${active
+                        ? 'bg-[#fe2681] text-white shadow-[0_8px_22px_rgba(254,38,129,0.45)] ring-2 ring-[#ffe3f1]'
+                        : 'bg-white text-gray-500 border border-gray-200'
+                      }
+                    `}
+                  >
                     {n < step ? <Check size={16} /> : n}
                   </div>
                   {i < stepTitles.length - 1 && (
-                    <div className={`flex-1 h-1 mx-2 rounded-full ${n < step ? 'bg-[#fe2681]' : 'bg-gray-200'}`} />
+                    <div
+                      className={`
+                        flex-1 h-1 mx-1.5 rounded-full transition-colors duration-200
+                        ${n < step ? 'bg-gradient-to-r from-[#fe2681] via-[#ff7fb5] to-[#14276d]' : 'bg-gray-200/70'}
+                      `}
+                    />
                   )}
                 </div>
               );
@@ -400,8 +432,17 @@ export function QuoteModal({
           {/* Steps */}
           <AnimatePresence mode="popLayout" custom={dir}>
             {step === 1 && (
-              <motion.div key="step-1" variants={slideVariants} initial="enter" animate="center" exit="exit" custom={dir}>
-                <h3 className="text-xl font-bold text-[#14276d] mb-4">Contact Information</h3>
+              <motion.div
+                key="step-1"
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                custom={dir}
+              >
+                <h3 className="text-xl md:text-2xl font-bold text-[#14276d] mb-4">
+                  Contact Information
+                </h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <Input
                     label="Full Name"
@@ -437,8 +478,17 @@ export function QuoteModal({
             )}
 
             {step === 2 && (
-              <motion.div key="step-2" variants={slideVariants} initial="enter" animate="center" exit="exit" custom={dir}>
-                <h3 className="text-xl font-bold text-[#14276d] mb-4">Project Details</h3>
+              <motion.div
+                key="step-2"
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                custom={dir}
+              >
+                <h3 className="text-xl md:text-2xl font-bold text-[#14276d] mb-4">
+                  Project Details
+                </h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <Select
                     label="Category"
@@ -485,8 +535,14 @@ export function QuoteModal({
                           key={s.value}
                           type="button"
                           onClick={() => handleInputChange('service', s.value)}
-                          className={`px-3 py-1.5 rounded-full text-sm border
-                            ${formData.service === s.value ? 'bg-[#fe2681] text-white border-[#fe2681]' : 'bg-white text-[#14276d] border-gray-200 hover:border-[#fe2681]'}`}
+                          className={`
+                            px-3 py-1.5 rounded-full text-sm border
+                            transition-colors shadow-sm
+                            ${formData.service === s.value
+                              ? 'bg-[#fe2681] text-white border-[#fe2681] shadow-[0_8px_22px_rgba(254,38,129,0.35)]'
+                              : 'bg-white text-[#14276d] border-gray-200 hover:border-[#fe2681]'
+                            }
+                          `}
                         >
                           {s.label}
                         </button>
@@ -498,8 +554,17 @@ export function QuoteModal({
             )}
 
             {step === 3 && (
-              <motion.div key="step-3" variants={slideVariants} initial="enter" animate="center" exit="exit" custom={dir}>
-                <h3 className="text-xl font-bold text-[#14276d] mb-4">Tell us more</h3>
+              <motion.div
+                key="step-3"
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                custom={dir}
+              >
+                <h3 className="text-xl md:text-2xl font-bold text-[#14276d] mb-4">
+                  Tell us more
+                </h3>
                 <Textarea
                   label="Project Brief"
                   value={formData.brief}
@@ -522,8 +587,13 @@ export function QuoteModal({
                           type="button"
                           key={goal}
                           onClick={() => handleGoalToggle(goal)}
-                          className={`px-3 py-1.5 rounded-full text-sm border transition-colors
-                            ${active ? 'bg-[#fe2681] text-white border-[#fe2681]' : 'bg-white text-[#14276d] border-gray-200 hover:border-[#fe2681]'}`}
+                          className={`
+                            px-3 py-1.5 rounded-full text-sm border transition-colors shadow-sm
+                            ${active
+                              ? 'bg-[#fe2681] text-white border-[#fe2681] shadow-[0_8px_22px_rgba(254,38,129,0.35)]'
+                              : 'bg-white text-[#14276d] border-gray-200 hover:border-[#fe2681]'
+                            }
+                          `}
                         >
                           {goal}
                         </button>
@@ -546,7 +616,7 @@ export function QuoteModal({
                     Attachments (PDF/Images, up to 10MB each)
                   </label>
                   <div className="flex items-center gap-3">
-                    <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:border-[#fe2681] cursor-pointer">
+                    <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white/80 hover:border-[#fe2681] cursor-pointer shadow-sm">
                       <Paperclip className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-[#14276d]">Add files</span>
                       <input
@@ -562,8 +632,13 @@ export function QuoteModal({
                   {attachments.length > 0 && (
                     <ul className="mt-3 space-y-2">
                       {attachments.map((f, i) => (
-                        <li key={i} className="flex items-center justify-between rounded-lg border border-gray-100 p-2">
-                          <span className="text-sm text-[#14276d] truncate max-w-[70%]">{f.name}</span>
+                        <li
+                          key={i}
+                          className="flex items-center justify-between rounded-lg border border-gray-100 bg-white/90 p-2 shadow-sm"
+                        >
+                          <span className="text-sm text-[#14276d] truncate max-w-[70%]">
+                            {f.name}
+                          </span>
                           <button
                             type="button"
                             onClick={() => removeAttachment(i)}
@@ -581,18 +656,27 @@ export function QuoteModal({
             )}
 
             {step === 4 && (
-              <motion.div key="step-4" variants={slideVariants} initial="enter" animate="center" exit="exit" custom={dir}>
-                <h3 className="text-xl font-bold text-[#14276d] mb-4">Review Your Submission</h3>
+              <motion.div
+                key="step-4"
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                custom={dir}
+              >
+                <h3 className="text-xl md:text-2xl font-bold text-[#14276d] mb-4">
+                  Review Your Submission
+                </h3>
 
                 {/* Make review block scroll-friendly and wrap long text */}
-                <div className="bg-gray-50 rounded-xl p-6 space-y-4 break-words">
-                  <div>
+                <div className="bg-white/80 rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4 break-words">
+                  <div className="border-l-2 border-[#fe2681] pl-4">
                     <h4 className="font-semibold text-[#14276d] mb-1">Contact</h4>
                     <p className="text-sm text-gray-600">{formData.fullName}</p>
                     <p className="text-sm text-gray-600">{formData.email}</p>
                     <p className="text-sm text-gray-600">{formData.phone}</p>
                   </div>
-                  <div>
+                  <div className="border-l-2 border-[#14276d]/40 pl-4">
                     <h4 className="font-semibold text-[#14276d] mb-1">Project</h4>
                     {formData.company && <p className="text-sm text-gray-600">{formData.company}</p>}
                     <p className="text-sm text-gray-600">
@@ -610,12 +694,14 @@ export function QuoteModal({
                       </p>
                     )}
                   </div>
-                  <div>
+                  <div className="border-l-2 border-[#bf1c60]/40 pl-4">
                     <h4 className="font-semibold text-[#14276d] mb-1">Brief</h4>
-                    <p className="text-sm text-gray-600 whitespace-pre-wrap">{formData.brief}</p>
+                    <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                      {formData.brief}
+                    </p>
                   </div>
                   {formData.goals.length > 0 && (
-                    <div>
+                    <div className="border-l-2 border-emerald-500/40 pl-4">
                       <h4 className="font-semibold text-[#14276d] mb-1">Goals</h4>
                       <ul className="text-sm text-gray-600 list-disc list-inside">
                         {formData.goals.map(goal => <li key={goal}>{goal}</li>)}
@@ -623,10 +709,14 @@ export function QuoteModal({
                     </div>
                   )}
                   {attachments.length > 0 && (
-                    <div>
+                    <div className="border-l-2 border-slate-300 pl-4">
                       <h4 className="font-semibold text-[#14276d] mb-1">Attachments</h4>
                       <ul className="text-sm text-gray-600 list-disc list-inside">
-                        {attachments.map((f, i) => <li key={i} className="truncate">{f.name}</li>)}
+                        {attachments.map((f, i) => (
+                          <li key={i} className="truncate">
+                            {f.name}
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   )}
@@ -641,7 +731,9 @@ export function QuoteModal({
                   />
                   <span className="text-sm text-[#14276d]">
                     I agree to be contacted about this project and understand that my information will be handled according to the{' '}
-                    <a className="text-[#fe2681] underline" href="/privacy" target="_blank" rel="noreferrer">privacy policy</a>.
+                    <a className="text-[#fe2681] underline" href="/privacy" target="_blank" rel="noreferrer">
+                      privacy policy
+                    </a>.
                   </span>
                 </label>
                 {errors.consent && <p className="text-sm text-red-500">{errors.consent}</p>}

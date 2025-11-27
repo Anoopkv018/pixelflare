@@ -14,6 +14,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet-async'; 
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Service, getRelatedServices } from '../config/services';
@@ -50,10 +51,45 @@ const fadeItem = {
 };
 
 /* --------------------------------- View --------------------------------- */
+
 export function ServiceDetail({ service, onQuoteClick }: ServiceDetailProps) {
   const s = service as ExtendedService;
   const relatedServices = getRelatedServices(service.id);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  // 🔹 SEO meta: Bangalore first, Mysore second, then India-wide
+  const locationPhrase = 'Bangalore, Mysore and across India';
+
+  const metaTitle =
+    s.seoTitle ||
+    `${service.title} in Bangalore | PixelFlare`;
+
+  const metaDescription =
+    s.seoDescription ||
+    `${service.subhead} PixelFlare offers ${service.title.toLowerCase()} for businesses in ${locationPhrase}.`;
+
+  const metaKeywords =
+    s.seoKeywords?.join(', ') ||
+    [
+      `${service.title} in Bangalore`,
+      `${service.title} in Mysore`,
+      `${service.title} services in Bangalore`,
+      `${service.title} services in Mysore`,
+      `${service.category === 'website'
+        ? 'website design company'
+        : service.category === 'marketing'
+        ? 'digital marketing agency'
+        : 'branding and design agency'
+      } in Bangalore`,
+      `${service.category === 'website'
+        ? 'website design company'
+        : service.category === 'marketing'
+        ? 'digital marketing agency'
+        : 'branding and design agency'
+      } in Mysore`,
+      `PixelFlare ${service.title}`,
+      `PixelFlare ${service.category} services India`,
+    ].join(', ');
 
   // Section anchors for small in-page nav
   const sections = [
@@ -130,7 +166,17 @@ export function ServiceDetail({ service, onQuoteClick }: ServiceDetailProps) {
 
   /* --------------------------------- Render --------------------------------- */
   return (
+      
     <div className="scroll-smooth">
+      <Helmet>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="keywords" content={metaKeywords} />
+        <link
+          rel="canonical"
+          href={`https://pixelflare.in/services/${service.slug}`}
+        />
+      </Helmet>
       {/* =========================== HERO =========================== */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#f7f7fb] via-white to-[#fff0f6]">
         {/* soft gradient blobs */}

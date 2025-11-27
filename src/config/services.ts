@@ -19,6 +19,11 @@ export interface Service {
   useCases?: string[];                                  // popular scenarios
   addons?: string[];                                    // optional add-ons
   highlights?: { label: string; value: string }[];      // KPI badges
+
+  // ✅ NEW: per-service SEO overrides (optional)
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
 }
 
 export const services: Service[] = [
