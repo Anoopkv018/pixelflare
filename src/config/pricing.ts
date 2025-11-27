@@ -73,7 +73,7 @@ export const pricingTiers: PricingTier[] = [
     description: "Essential marketing services to get your digital presence started",
     features: [
       "Upto 2 social media platforms management",
-      "12 Posts/Month",
+      "15 Posts/Month",
       "Keyword/audience research",
       "Ad designs",
       "Landing page recommendations",
@@ -110,7 +110,7 @@ export const pricingTiers: PricingTier[] = [
     description: "Enterprise marketing with dedicated team and unlimited channels",
     features: [
       "Multi-channel campaign management",
-      "25 Posts/Month",
+      "20 Posts/Month",
       "Advanced SEO + link building",
       "Content creation & distribution",
       "Marketing automation",

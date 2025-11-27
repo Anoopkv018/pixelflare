@@ -142,26 +142,29 @@ export function Footer() {
               </div>
             </div>
 
-            {/* Right: form */}
-            <form onSubmit={handleSubmit} className="w-full space-y-3 sm:space-y-4">
+            {/* Right: compact form card */}
+            <form
+              onSubmit={handleSubmit}
+              className="w-full max-w-md ml-auto space-y-3 sm:space-y-4 bg-white/8 backdrop-blur-md rounded-3xl px-4 py-4 sm:px-5 sm:py-5 border border-white/20 shadow-[0_18px_45px_rgba(8,0,42,0.45)]"
+            >
               {/* status */}
               <div aria-live="polite">
                 {status.type === 'success' && (
-                  <div className="flex items-center gap-2 text-green-600 bg-green-50/90 border border-green-200 rounded-xl px-3 py-2">
+                  <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50/95 border border-emerald-200 rounded-xl px-3 py-2">
                     <CheckCircle2 className="w-4 h-4" />
-                    <span className="text-sm">{status.message}</span>
+                    <span className="text-xs sm:text-sm">{status.message}</span>
                   </div>
                 )}
                 {status.type === 'soft-error' && (
-                  <div className="flex items-center gap-2 text-orange-600 bg-orange-50/90 border border-orange-200 rounded-xl px-3 py-2">
+                  <div className="flex items-center gap-2 text-orange-600 bg-orange-50/95 border border-orange-200 rounded-xl px-3 py-2">
                     <AlertTriangle className="w-4 h-4" />
-                    <span className="text-sm">{status.message}</span>
+                    <span className="text-xs sm:text-sm">{status.message}</span>
                   </div>
                 )}
                 {status.type === 'error' && (
-                  <div className="flex items-center gap-2 text-red-600 bg-red-50/90 border border-red-200 rounded-xl px-3 py-2">
+                  <div className="flex items-center gap-2 text-red-600 bg-red-50/95 border border-red-200 rounded-xl px-3 py-2">
                     <AlertTriangle className="w-4 h-4" />
-                    <span className="text-sm">{status.message}</span>
+                    <span className="text-xs sm:text-sm">{status.message}</span>
                   </div>
                 )}
               </div>
@@ -177,71 +180,87 @@ export function Footer() {
                 autoComplete="off"
               />
 
-              <label htmlFor="f_name" className="sr-only">Name</label>
-              <input
-                id="f_name"
-                name="name"
-                type="text"
-                placeholder="Name"
-                required
-                value={form.name}
-                onChange={(e) => setField('name', e.target.value)}
-                className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/30 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-white/30 focus:border-white"
-              />
-              {errors.name && <p className="text-sm text-red-200">{errors.name}</p>}
+              {/* Top row: name + email */}
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="f_name" className="sr-only">Name</label>
+                  <input
+                    id="f_name"
+                    name="name"
+                    type="text"
+                    placeholder="Name"
+                    required
+                    value={form.name}
+                    onChange={(e) => setField('name', e.target.value)}
+                    className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[#fe2681]/20 focus:border-white"
+                  />
+                  {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
+                </div>
 
-              <label htmlFor="f_email" className="sr-only">Email</label>
-              <input
-                id="f_email"
-                name="email"
-                type="email"
-                placeholder="Email"
-                required
-                value={form.email}
-                onChange={(e) => setField('email', e.target.value)}
-                className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/30 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-white/30 focus:border-white"
-              />
-              {errors.email && <p className="text-sm text-red-200">{errors.email}</p>}
+                <div>
+                  <label htmlFor="f_email" className="sr-only">Email</label>
+                  <input
+                    id="f_email"
+                    name="email"
+                    type="email"
+                    placeholder="Email"
+                    required
+                    value={form.email}
+                    onChange={(e) => setField('email', e.target.value)}
+                    className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[#fe2681]/20 focus:border-white"
+                  />
+                  {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+                </div>
+              </div>
 
-              <label htmlFor="f_phone" className="sr-only">Phone</label>
-              <input
-                id="f_phone"
-                name="phone"
-                type="tel"
-                placeholder="Phone"
-                required
-                value={form.phone}
-                onChange={(e) => setField('phone', e.target.value)}
-                className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/30 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-white/30 focus:border-white"
-              />
-              {errors.phone && <p className="text-sm text-red-200">{errors.phone}</p>}
+              {/* Phone */}
+              <div>
+                <label htmlFor="f_phone" className="sr-only">Phone</label>
+                <input
+                  id="f_phone"
+                  name="phone"
+                  type="tel"
+                  placeholder="Phone"
+                  required
+                  value={form.phone}
+                  onChange={(e) => setField('phone', e.target.value)}
+                  className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[#fe2681]/20 focus:border-white"
+                />
+                {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
+              </div>
 
-              <label htmlFor="f_address" className="sr-only">Address</label>
-              <textarea
-                id="f_address"
-                name="address"
-                placeholder="Address"
-                rows={4}
-                value={form.address}
-                onChange={(e) => setField('address', e.target.value)}
-                className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/30 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-white/30 focus:border-white"
-              />
+              {/* Address */}
+              <div>
+                <label htmlFor="f_address" className="sr-only">Address</label>
+                <textarea
+                  id="f_address"
+                  name="address"
+                  placeholder="Address (optional)"
+                  rows={3}
+                  value={form.address}
+                  onChange={(e) => setField('address', e.target.value)}
+                  className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[#fe2681]/20 focus:border-white resize-none"
+                />
+              </div>
 
-              <label htmlFor="f_brief" className="sr-only">Brief about the project</label>
-              <textarea
-                id="f_brief"
-                name="brief"
-                placeholder="Brief about the project"
-                rows={4}
-                value={form.brief}
-                onChange={(e) => setField('brief', e.target.value)}
-                className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/30 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-white/30 focus:border-white"
-              />
+              {/* Brief */}
+              <div>
+                <label htmlFor="f_brief" className="sr-only">Brief about the project</label>
+                <textarea
+                  id="f_brief"
+                  name="brief"
+                  placeholder="Brief about the project (optional)"
+                  rows={3}
+                  value={form.brief}
+                  onChange={(e) => setField('brief', e.target.value)}
+                  className="w-full rounded-2xl bg-white text-[#14276d] placeholder-gray-400 border border-white/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[#fe2681]/20 focus:border-white resize-none"
+                />
+              </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center justify-center rounded-2xl bg-white/15 px-6 py-3 font-semibold text-white transition-all hover:bg-white/25 disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-2xl bg-white text-[#fe2681] px-5 py-2.5 text-sm font-semibold shadow-[0_10px_30px_rgba(0,0,0,0.15)] transition-all hover:bg-[#ffe6f2] hover:shadow-[0_14px_40px_rgba(0,0,0,0.25)] disabled:opacity-60"
               >
                 {isSubmitting ? (
                   <span className="inline-flex items-center gap-2">

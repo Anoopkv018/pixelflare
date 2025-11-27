@@ -44,7 +44,7 @@ export const services: Service[] = [
       "Higher engagement & conversion on key pages",
       "Polished brand presence across devices"
     ],
-    tools: ["Figma", "FigJam", "Illustrator", "Zeplin"],
+    
     useCases: [
       "New brand/site launch",
       "UX refresh of dated UI",
@@ -58,13 +58,11 @@ export const services: Service[] = [
       "Brands wanting to stand out from competitors"
     ],
     deliverables: [
-      "Custom design mockups (desktop, tablet, mobile)",
+      "Responsive design (desktop, tablet, mobile)",
       "Interactive prototypes in Figma",
       "Complete design system and style guide",
       "UI component library",
       "Brand-aligned color palette and typography",
-      "Icon set and imagery guidelines",
-      "Responsive layouts for all screen sizes",
       "Design files and source assets",
       "2 rounds of revisions included"
     ],
@@ -76,11 +74,9 @@ export const services: Service[] = [
     ],
     faqs: [
       { question: "How long does website design take?", answer: "Typically 2-4 weeks depending on complexity and number of pages." },
-      { question: "Do I get the design files?", answer: "Yes, you receive all Figma files, assets, and a complete design system." },
       { question: "Can you match my existing brand?", answer: "Absolutely. We work within your brand guidelines or help evolve them." },
       { question: "What if I need changes later?", answer: "We include 2 revision rounds. Additional changes can be quoted separately." },
       { question: "Do you design for mobile?", answer: "Yes, all designs are fully responsive and mobile-first." },
-      { question: "Can you design without development?", answer: "Yes, design-only projects are welcome. We provide ready-to-develop files." }
     ],
     relatedServices: ["website-development", "wordpress-website", "logo-designing"]
   },
@@ -102,7 +98,7 @@ export const services: Service[] = [
       "Excellent Lighthouse/SEO scores",
       "Easy publishing with CMS or headless"
     ],
-    tools: ["Next.js", "React", "Node.js", "Tailwind", "Vercel"],
+    tools: ["Next.js", "React", "Node.js", "Tailwind", "Vercel", "PHP/Laravel"],
     useCases: [
       "Marketing site with CMS",
       "High-performance landing pages",
@@ -220,7 +216,7 @@ export const services: Service[] = [
       "Solid Core Web Vitals & SEO setup",
       "Scalable structure for future growth"
     ],
-    tools: ["WordPress", "ACF", "Yoast/RankMath", "Cloudflare"],
+    tools: ["WordPress", "Elementor", "Yoast/RankMath", "Woocommerce"],
     useCases: [
       "SMB marketing site",
       "Blog/Resource hub",
@@ -519,7 +515,7 @@ export const services: Service[] = [
       "On-brand graphics & subtitles",
       "Platform-ready exports"
     ],
-    tools: ["Premiere Pro", "After Effects", "DaVinci Resolve"],
+    tools: ["Premiere Pro", "After Effects", "CapCut"],
     useCases: [
       "YouTube/social content",
       "Product promos",
@@ -637,7 +633,7 @@ export const services: Service[] = [
       "Human-centered proof of value",
       "Multi-channel content pieces"
     ],
-    tools: ["Premiere Pro", "DaVinci Resolve", "Riverside/Zencastr"],
+    tools: ["Premiere Pro", "CapCut", "After Effects"],
     useCases: [
       "B2B case studies",
       "Service proof for D2C",
@@ -772,7 +768,7 @@ export const services: Service[] = [
       "Brand discovery and research",
       "3 unique logo concepts",
       "2 rounds of revisions",
-      "Final logo in multiple formats (AI, SVG, PNG, JPG)",
+      "Final logo in multiple formats (AI/PSD, SVG, PNG, JPG)",
       "Color and black-and-white versions",
       "Favicon and social media sizes",
       "Logo usage guidelines",
