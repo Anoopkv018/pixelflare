@@ -62,7 +62,7 @@ export const megaMenuColumns = [
   {
     title: "PixelFlare",
     items: [
-      { label: "Blog", href: "/blog" },
+      
       { label: "About", href: "/about" },
       { label: "Contact", href: "/contact" }
     ]
